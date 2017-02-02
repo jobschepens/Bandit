@@ -1,0 +1,203 @@
+```{r}
+colSeColMeans <- function(x, na.rm = TRUE) {
+	if (na.rm) { 
+		n <- colSums(!is.na(x)) 
+		p <- colMeans(x, na.rm = T)
+	} 
+	else {
+		n <- nrow(x) 
+		p <- colMeans(x)
+	}
+	return(sqrt((1/n) * p * (1-p)))
+}
+```
+
+
+```{r, eval=T}
+plottrialsSE <- function(aggrPROB, BIC, group, lgnd, ylb, model = "predicted", col_se = array(data = 1, dim = c(100, 2*N_BANDITS))) {
+	sp = .4 # % of the points
+	colors = rainbow(n = 8, start=.7, end=.1)
+	x <- seq(1,100)
+	ylm = .5
+	if (N_BANDITS == 8) {
+		ylm = .35
+	}
+	xl <- seq(min(x),max(x), (max(x) - min(x))/1000)
+	plot (xl, predict(loess(aggrPROB[,N_BANDITS + 1]~x, span = sp),xl), col=colors[1], lty = "solid", type="l", axes=F,  bty="n", xlab="", ylab = "", xlim=c(1,100), ylim=c(0,ylm), cex.lab=1.4,  lwd=1)
+	lines(xl, predict(loess(aggrPROB[,N_BANDITS + 2]~x, span = sp),xl), col=colors[2], lty = "solid", lwd=1)
+	lines(xl, predict(loess(aggrPROB[,N_BANDITS + 3]~x, span = sp),xl), col=colors[3], lty = "solid", lwd=1)
+	lines(xl, predict(loess(aggrPROB[,N_BANDITS + 4]~x, span = sp),xl), col=colors[4], lty = "solid", lwd=1)
+	if (N_BANDITS == 8) {
+		l5 <- loess(aggrPROB[,N_BANDITS + 5]~x, span = sp)
+		l6 <- loess(aggrPROB[,N_BANDITS + 6]~x, span = sp)
+		l7 <- loess(aggrPROB[,N_BANDITS + 7]~x, span = sp)
+		l8 <- loess(aggrPROB[,N_BANDITS + 8]~x, span = sp)
+		lines(xl, predict(l5,xl), col=colors[5], lty = "solid", lwd=1)
+		lines(xl, predict(l6,xl), col=colors[6], lty = "solid", lwd=1)
+		lines(xl, predict(l7,xl), col=colors[7], lty = "solid", lwd=1)
+		lines(xl, predict(l8,xl), col=colors[8], lty = "solid", lwd=1)
+		lines(xl, predict(loess(aggrPROB[,N_BANDITS + 5] + col_se[,N_BANDITS + 5] ~x, span = sp),xl),type="l",col=colors[5], lty = "dashed")
+		lines(xl, predict(loess(aggrPROB[,N_BANDITS + 5] - col_se[,N_BANDITS + 5] ~x, span = sp),xl),type="l",col=colors[5], lty = "dashed")
+		lines(xl, predict(loess(aggrPROB[,N_BANDITS + 6] + col_se[,N_BANDITS + 6] ~x, span = sp),xl),type="l",col=colors[6], lty = "dashed")
+		lines(xl, predict(loess(aggrPROB[,N_BANDITS + 6] - col_se[,N_BANDITS + 6] ~x, span = sp),xl),type="l",col=colors[6], lty = "dashed")
+	}
+	axis(1,  at=0:2*50, cex.axis=1.2, labels = c("0", "50", "100")) 
+	axis(2,  at=0:2*.25,  las=2,  cex.axis=1.2)  
+	if(ylb == T) {
+		title(ylab = "Proportion of choices",  cex.lab=1.4)
+		title(xlab = "Trial",  cex.lab=1.4)
+	}
+	title(group)
+	grid(5, 10)
+}
+```
+
+
+```{r, eval=T}
+plottrials <- function(aggrPROB, BIC, group, lgnd, ylb, model = "predicted", col_se = array(data = 1, dim = c(100, 2*N_BANDITS))) {
+	sp = .4 # % of the points
+	colors = rainbow(n = 8, start=.7, end=.1)
+	x <- seq(1,100)
+	ylm = .5
+	if (N_BANDITS == 8) {
+		ylm = .35
+	}
+	xl <- seq(min(x),max(x), (max(x) - min(x))/1000)
+	n1 <- loess(aggrPROB[,1]~x, span = sp)
+	n2 <- loess(aggrPROB[,2]~x, span = sp)
+	n3 <- loess(aggrPROB[,3]~x, span = sp)
+	n4 <- loess(aggrPROB[,4]~x, span = sp)
+	l1 <- loess(aggrPROB[,N_BANDITS + 1]~x, span = sp)
+	l2 <- loess(aggrPROB[,N_BANDITS + 2]~x, span = sp)
+	l3 <- loess(aggrPROB[,N_BANDITS + 3]~x, span = sp)
+	l4 <- loess(aggrPROB[,N_BANDITS + 4]~x, span = sp)
+	plot (xl, predict(n1,xl), col=colors[1], lty = "dashed", type="l", axes=F,  bty="n", xlab="", ylab = "", xlim=c(1,100), ylim=c(0,ylm), cex.lab=1.4,  lwd=1)
+	lines(xl, predict(n2,xl), col=colors[2], lty = "dashed")
+	lines(xl, predict(n3,xl), col=colors[3], lty = "dashed")
+	lines(xl, predict(n4,xl), col=colors[4], lty = "dashed")
+	lines(xl, predict(l1,xl), col=colors[1], lty = "solid", lwd=1)
+	lines(xl, predict(l2,xl), col=colors[2], lty = "solid", lwd=1)
+	lines(xl, predict(l3,xl), col=colors[3], lty = "solid", lwd=1)
+	lines(xl, predict(l4,xl), col=colors[4], lty = "solid", lwd=1)
+	if (N_BANDITS == 8) {
+		n5 <- loess(aggrPROB[,5]~x, span = sp)
+		n6 <- loess(aggrPROB[,6]~x, span = sp)
+		n7 <- loess(aggrPROB[,7]~x, span = sp)
+		n8 <- loess(aggrPROB[,8]~x, span = sp)
+		l5 <- loess(aggrPROB[,N_BANDITS + 5]~x, span = sp)
+		l6 <- loess(aggrPROB[,N_BANDITS + 6]~x, span = sp)
+		l7 <- loess(aggrPROB[,N_BANDITS + 7]~x, span = sp)
+		l8 <- loess(aggrPROB[,N_BANDITS + 8]~x, span = sp)
+		lines(xl, predict(n5,xl), col=colors[5], lty = "dashed")
+		lines(xl, predict(n6,xl), col=colors[6], lty = "dashed")
+		lines(xl, predict(n7,xl), col=colors[7], lty = "dashed")
+		lines(xl, predict(n8,xl), col=colors[8], lty = "dashed")
+		lines(xl, predict(l5,xl), col=colors[5], lty = "solid", lwd=1)
+		lines(xl, predict(l6,xl), col=colors[6], lty = "solid", lwd=1)
+		lines(xl, predict(l7,xl), col=colors[7], lty = "solid", lwd=1)
+		lines(xl, predict(l8,xl), col=colors[8], lty = "solid", lwd=1)
+	}
+	if(lgnd == T) {
+		legend("top", 
+			   c(model, "observed"), 
+		lty = c("dashed","solid"), 
+		lwd = c(2.5,2.5))
+	}
+	axis(1,  at=0:2*50, cex.axis=1.2, labels = c("0", "50", "100")) 
+	axis(2,  at=0:2*.25,  las=2,  cex.axis=1.2)  
+	if(ylb == T) {
+		title(ylab = "Proportion of choices",  cex.lab=1.4)
+		title(xlab = "Trial",  cex.lab=1.4)
+	}
+	title(paste(group, sep = ""))
+	grid(5, 10)
+}
+```
+
+
+##### YA
+
+```{r}
+group = "young"
+filename  <- paste("../processed/BB","results", N_BANDITS, "N", group, ex, ".RData", sep= "")
+load(filename, verbose = F)
+
+BBBICYA <- round(mean(FBB2[,4], na.rm = T), digits = 1)
+
+if (N_BANDITS == 4) {
+	PRBB[, , 5:8][is.na(PRBB[, , 5:8])] <- 0
+}
+if (N_BANDITS == 8) {
+	PRBB[, , 9:16][is.na(PRBB[, , 9:16])] <- 0
+}
+aggrPRBBYA <- colMeans(PRBB, dims = 1, na.rm = T) 
+agsePRBBYA <- apply(PRBB, 3, colSeColMeans, na.rm = T) 
+
+```
+
+```{r}
+plottrials(aggrPRBBYA, BBBICYA, group = "YA", lgnd = T, ylb = T, model = "Thompson")
+```
+
+```{r}
+# plottrials(aggrPRBBYA, BBBICYA, group = "YA", lgnd = T, ylb = T, model = "Thompson", agsePROBYA)
+```
+
+\newpage
+
+
+##### same options  
+
+##### OA
+
+```{r}
+# file:///C:/Users/schepens/Google Drive/ownCloud/Experiments/feedback and dynamic/rmd/results4Noldin.RData
+group = "old"
+filename  <- paste("../processed/BB","results", N_BANDITS, "N", group, ex, ".RData", sep= "")
+load(filename)
+BBBICOA <- round(mean(FBB2[,4], na.rm = T), digits = 1)
+
+if (N_BANDITS == 4) {
+	PRBB[, , 5:8][is.na(PRBB[, , 5:8])] <- 0
+}
+if (N_BANDITS == 8) {
+	PRBB[, , 9:16][is.na(PRBB[, , 9:16])] <- 0
+}
+aggrPRBBOA 	<- colMeans(PRBB, dims = 1) 
+agsePRBBOA <- apply(PRBB, 3, colSeColMeans, na.rm = T) 
+```
+
+```{r}
+plottrials(aggrPRBBOA, BBBICOA, group = "OA", lgnd = T, ylb = T, model = "Thompson")
+```
+
+\newpage
+
+
+##### Both
+
+```{r}
+# merge
+aggrPRBBYA <- as.data.frame(aggrPRBBYA)
+aggrPRBBOA <- as.data.frame(aggrPRBBOA)
+aggrPRBBYA$group = "young"
+aggrPRBBOA$group = "old"
+# aggrPRBB <- rbind(aggrPRBBYA, aggrPRBBOA)
+```
+
+```{r}
+par(mfrow=c(1,2))
+plottrials(aggrPRBBYA, BBBICYA, group = "YA", lgnd = T, ylb = T, model = "Thompson")
+plottrials(aggrPRBBOA, BBBICOA, group = "OA", lgnd = F, ylb = T, model = "Thompson")
+par(mfrow=c(1,1))
+```
+
+
+```{r}
+pdf(paste("../figs/knit/BB-fit-",  N_BANDITS, "opt-both.pdf",sep = ""), width=inch_width, height=inch_height, pointsize = pointsize)
+par(mfrow=c(1,2))
+plottrials(aggrPRBBYA, BBBICYA, group = "YA", lgnd = T, ylb = T, model = "Thompson")
+plottrials(aggrPRBBOA, BBBICOA, group = "OA", lgnd = F, ylb = T, model = "Thompson")
+par(mfrow=c(1,1))
+invisible(dev.off())
+```

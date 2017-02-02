@@ -1,0 +1,33 @@
+- appendix
+- how many decisions everyone makes: is it 100 per condition = 400? (the appendix said something about 4 decisions but I guessed you meant 4 conditions? 
+- pay a lump sum of 5 Euro per hour or is there a decision based incentive on top of that? If so, it should be mentioned in the consent form and questionnaire. 
+- how much do you pay if someone drops out before finishing? (e.g. a lump sum or same rate for the time he spend there?) 
+- maybe you can specify more clearly when the link between personal data and participant IDs will be deleted. Its fine to say after publication or when data collection is finished..Is that what you meant? 
+
+- are you the only research involved in the project? or is Ralph or anyone else coauthor on this?  
+
+- consent form
+ - it says first one has to gamble and then there are no risk involved which sounds a little confusing. In you case it seems ok to drop mentioning that  there are no risk involves because the description of the task already makes clear that they will do nothing bad. 
+
+
+experiment
+
+errors with the graph, maybe implement a short 100 ms pause after clicks?
+
+in condition 3 after about 200 trials
+   File "C:\Program Files (x86)\PsychoPy2\lib\site-packages\matplotlib\backends\backend_agg.py", line 518, in print_png
+    filename_or_obj = open(filename_or_obj, 'wb')
+IOError: [Errno 22] invalid mode ('wb') or filename: 'stims/figure.png'
+
+
+
+Hi Lukas,
+
+It works really nicely! Thanks so much so far. Let's hope the pp's think it's fun.  
+
+For the external trial file, it seems to be a really nice solution. It would be nice to make the "payoff sequantial repeating behavior" a bit more "controllable" so that the ev stablelizes either faster or slower... maybe after about 15 trials of exploration, pp should be able to get relative certain idea of EV of an option. Right now, it seems that it is already after 15 or so, so it seems fine to me. I think it's easy to add a parameter to it though?
+
+Can you check if the consturctions work for you too? And can you add some if else to display the renew instructions?
+
+If a reward is 0 it is never displayed on the screen. 
+

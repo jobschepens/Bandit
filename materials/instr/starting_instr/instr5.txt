@@ -1,0 +1,9 @@
+Auf der rechten Seite sehen Sie, wie das Spiel aussieht. Sie sehen folgende information:
+
+- Den Durchgang ("Durchgang")
+- Die Anzahl der gespielten Runden ("Runde")
+- Die Gesamtsumme Ihrer Belohnungen die Sie bisher bekommen haben ("Punkte")
+- Die Gewinne von Ihre Entscheidungen ("Belohnung")
+- Sie können mit der Maus Spielautomaten auswählen ("Spielautomat"). 
+- Die durchschnittliche Belohnungen, basierend auf den Belohnungen, die Sie bisher bekommen haben. ("Durchschnitt")
+- Die Anzahl, wie oft Sie diesen Spielautomat ausgewaehlt haben. ("Auslösungen")

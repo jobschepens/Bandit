@@ -1,0 +1,173 @@
+#### EV plots
+
+```{r, echo=FALSE}
+source("extra.R")
+npp = length(unique(data$id)) # n participants 
+
+# http://stat.wharton.upenn.edu/~buja/STAT-101/src-probability.R
+make.RV <- function(vals, probs.or.odds) {
+  names(vals) <- probs.or.odds;  class(vals) <- "RV";  vals } 
+
+# Obtain the list of probabilities from a random variable: p(x)
+probs <- function(X, scipen=10, digits=22) {
+  pr <- sapply(names(X), function(pstr) eval(parse(text=pstr)));
+  options(scipen=scipen)
+  names(pr) <- X
+  pr <- pmax(pr,0)
+  if(any(is.na(pr))) pr[is.na(pr)] <- pmax(0, (1-sum(pr[!is.na(pr)]))/sum(is.na(pr)))
+  pr/sum(pr) }
+
+# Expected value of a random variable:
+E <- function(x1, x2, p1, p2) { sum(c(x1, x2)*c(p1, p2)) }
+
+# Variance of a random variable:
+# V <- function(X) { E((X-E(X))^2) }
+V <- function(x1, x2, p1, p2) { E(
+  (x1-E(x1, x2, p1, p2))^2, 
+  (x2-E(x1, x2, p1, p2))^2,
+  p1, 
+  p2) }
+
+```
+
+
+```{r}
+## Lookup ev's in problem specification files
+change <- "/finaldata/conditions"
+temp = paste(base, change, sep='')
+setwd(temp)
+dflist = lapply(list.files(pattern="*param_4"), read.table, header = T, sep = "")
+setwd(wd)
+df4 <- read.table("../rmd/orders4.txt", header = T)
+i = 1
+for (i in 1:length(dflist)) {
+  dflist[[i]]$inc <- i*2-1
+  dflist[[i]]$dec <- i*2
+  dflist[[i]]$i <- i
+  order <- dflist[[i]]$Prob1
+  row = c()
+  for(j in 1:nrow(df4)) {
+    row[j] <- all(as.numeric(df4[j,] ) == order)
+  }
+  row.names(df4[row,])
+  dflist[[i]]$order <- as.integer(row.names(df4[row,]))
+}
+
+log <- do.call(rbind, dflist, quote = T)
+log <- log[complete.cases(log),]
+log$ID <- log$ID - 1
+log$block_size = 4
+cond_4 <- log
+
+setwd(temp) 
+dflist = lapply(list.files(pattern="*param_8"), read.table, header = T, sep = "")
+setwd(wd)
+df8 <- read.table("../rmd/orders8.txt", header = T)
+
+for (i in 1:length(dflist)) {
+  dflist[[i]]$inc <- i*2
+  dflist[[i]]$dec <- i*2-1
+  dflist[[i]]$i <- i
+  order <- dflist[[i]]$Prob1
+  row = c()
+  for(j in 1:nrow(df8)) {
+    row[j] <- all(as.numeric(df8[j,] ) == order)
+  }
+  row.names(df4[row,])
+  dflist[[i]]$order <- as.integer(row.names(df8[row,]))
+}
+
+log <- do.call(rbind, dflist, quote = T)
+log <- log[complete.cases(log),]
+log$ID <- log$ID - 1
+log$block_size = 8
+cond_8 <- log
+cond <- rbind(cond_4, cond_8)
+names(cond)[names(cond)=="ID"] <- "bandit_id"
+names(cond)[names(cond)=="i"] <- "block_size_id"
+
+cond$bandit_real_id[cond$block_size == 4] <- rep(1:4,8) ## following experiment order
+cond$bandit_real_id[cond$block_size == 8] <- rep(1:8,8) ## following experiment order
+
+cond$order[cond$block_size == 4] <- (cond$order[cond$block_size == 4] * 2) - 1
+cond$order[cond$block_size == 8] <- cond$order[cond$block_size == 8] * 2
+log <- cond
+```
+
+
+```{r}
+## Retrieve EV's
+log$ev <- 0
+log$v <- 0
+log$maxev <- 0
+for(i in 1:nrow(log)) {
+  log$ev[i] <- E(log$Payoff1[i], log$Payoff2[i], log$Prob1[i], log$Prob2[i])
+  log$v[i] <- V(log$Payoff1[i], log$Payoff2[i], log$Prob1[i], log$Prob2[i])
+}
+log$cond <- interaction(log$block_size_id, log$block_size)
+log$cond <- interaction(log$block_size_id, log$block_size)
+for(i in unique(log$cond)) {
+  log$maxev[log$cond == i] <- max(log$ev[log$cond == i])
+}
+```
+
+
+```{r}
+load("../processed/data.ev-final.RData", verbose = F)
+data.ev.test <- ddply(data.ev, .(order, block_size, id, ev, age_group), summarise, 
+                      ev.prop = length(ev), .drop = T)
+data.ev.test$age_group <- as.factor(data.ev.test$age_group)
+tgc2 <- summarySE(data.ev.test, measurevar="ev.prop", groupvars=c("age_group", "block_size", "ev"))
+tgc2$ev.prop <- tgc2$sum / (npp*8) # pps number of blocks
+tgc_within <- summarySE(data.ev.test, measurevar="ev.prop", groupvars=c("id", "age_group", "block_size", "ev"))
+tgc_within$ev.prop <- tgc_within$sum / 8
+maxevs <- tgc_within[tgc_within$ev == .6,]
+tgc <- summarySE(tgc_within, measurevar="ev.prop", groupvars=c("block_size", "age_group", "ev"))
+```
+
+```{r}
+levels(tgc$ev) <- gsub("0.0", ".0", levels(tgc$ev))
+levels(tgc$ev) <- gsub("0.", ".", levels(tgc$ev))
+levels(tgc$ev)[levels(tgc$ev)=="..5"] <- ".075"
+
+levels(tgc_within$ev) <- gsub("0.0", ".0", levels(tgc_within$ev))
+levels(tgc_within$ev) <- gsub("0.", ".", levels(tgc_within$ev))
+levels(tgc_within$ev)[levels(tgc_within$ev)=="..5"] <- ".075"
+
+levels(tgc$age_group) 		 <- gsub("young", "1", levels(tgc$age_group))
+levels(tgc$age_group) 		 <- gsub("old", "2", levels(tgc$age_group))
+levels(tgc_within$age_group) <- gsub("young", "1", levels(tgc_within$age_group))
+levels(tgc_within$age_group) <- gsub("old", "2", levels(tgc_within$age_group))
+
+tgc$age_group <- factor(tgc$age_group, levels = rev(levels(tgc$age_group)))
+tgc_within$age_group <- factor(tgc_within$age_group, levels = rev(levels(tgc_within$age_group)))
+    
+name = paste("../figs/knit/ev-finaldata-boxplots", gsub("/", "", dataloc), ".png", sep = "")
+name = paste("knit/ev-finaldata-boxplots", gsub("/", "", dataloc), ".png", sep = "")
+# pdf("plot-%d.pdf", width=inch_width, height=inch_height, pointsize = pointsize)
+
+ggplot(tgc, aes(x = ev, y = ev.prop, fill = age_group)) + 
+#   geom_violin(data = tgc_within) + 
+  geom_boxplot(data = tgc_within, notch = FALSE) + 
+#   geom_bar(position=pd, stat="identity") + 
+#   geom_errorbar(aes(ymax=ev.prop+se , ymin= ev.prop-se), width = 0, position = pd) + 
+#   geom_violin(position=pd, stat="identity") + 
+#   geom_boxplot(position = pd) + 
+#   geom_violin(draw_quantiles = c(0.25, 0.5, 0.75))
+  facet_wrap(~ block_size) + 
+  scale_y_continuous(limits = c(0, 50)) + 
+  scale_fill_discrete(
+    breaks = c("1", "2"),
+    labels = c("YA", "OA")) + 
+	
+  labs(x="Hidden probability", y="Proportion of choices", fill = "Age")
+	# labs(x="Expected value", y="Average proportion", title="Age-related differences across choice environments", fill = "Age")
+# ggsave(name, width = 6, height = 4)
+# dev.off()
+# 
+```
+
+
+\newpage
+
+

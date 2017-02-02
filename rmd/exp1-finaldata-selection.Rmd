@@ -1,0 +1,603 @@
+### Data analysis
+
+```{r, echo=FALSE, results='hide'}
+
+aap <- 5
+## Read multiple log files
+# var = 'C:/Users/schepens/' # mpib
+
+# const = 'Drive/ownCloud/Experiments/feedback and dynamic'
+# wd = paste(var, const, sep='')
+
+# change <- "/thirddata/selectedthirddata"
+# temp = paste(base, change, sep='')
+
+setwd(temp)
+dflist = lapply(list.files(pattern="*.txt"), read.table, header = T, sep = "")
+setwd(base)
+
+log <- do.call(rbind, dflist)
+log <- log[complete.cases(log),]
+log$id <- as.factor(log$id)
+
+Sys.setlocale("LC_ALL", "German_Germany")
+
+log$timestamp <- gsub("z", "c", log$timestamp) # changing locale does not affect strptime apparently
+
+log$timestrip <- strptime(log$timestamp, "%Y-%b%d-%H.%M.%S")
+log$timestrip <- as.POSIXct(log$timestrip) # convert to POSIXct to use in data frames / ddply
+Sys.setlocale(category = "LC_ALL", locale = "English_United States.1252")
+# sessionInfo()
+
+# log[log$ms < 1,] # some timing inaccuracy
+# log[log$rt > 3,] # some very slow trials
+data <- log
+
+# data$age[data$id == 60] <- 80
+data$age_group <- "young"
+data$age_group[data$age > 50] <- "old"
+
+data$block_size_start <- 8
+data$block_size_start[as.integer(as.character(data$id)) %% 2 == 1] <- 4
+data$block_size <- data$block_size_start
+data$block_size[data$block_id %% 2 == 0 & data$block_size_start == 8] <- 4
+data$block_size[data$block_id %% 2 == 0 & data$block_size_start == 4] <- 8
+# data$block_size_id <- 0
+
+data$block_order <- "dec"
+data$check <- (((as.integer(as.character(data$id))-1) %% 4) < 2) == T 
+data$block_order[data$check] <- "inc"
+data$block_order <- as.factor(data$block_order)
+# head(data)
+# summary(data$block_order)
+
+data$real_block_id <- data$block_id
+data$real_block_id[data$block_order == "dec"] = 10 - data$block_id[data$block_order == "dec"] 
+data$real_block_id[data$real_block_id <= 0] = (data$real_block_id[data$real_block_id <= 0] + 16)
+# data$real_block_id
+# head(data)
+# head(data[1600:3200,])
+
+aap <- rbind(c(1, 4, 2, 4, 1),
+c(2, 8, 3, 8, 2),
+c(3, 4, 4, 4, 3),
+c(4, 8, 5, 8, 4),
+c(5, 4, 6, 4, 5),
+c(6, 8, 7, 8, 6),
+c(7, 4, 8, 4, 7),
+c(8, 8, 9, 8, 8),
+c(9, 4, 10, 4, 9),
+c(10, 8, 11, 8, 10),
+c(11, 4, 12, 4, 11),
+c(12, 8, 13, 8, 12),
+c(13, 4, 14, 4, 13),
+c(14, 8, 15, 8, 14),
+c(15, 4, 16, 4, 15),
+c(16, 8, 1, 8, 16))
+colnames(aap) <- c("real_block_id", "block_size", "real_block_id", "block_size", "order")
+aap1 <- aap[,c(1,2,5)]
+aap2 <- aap[,c(3,4,5)]
+orders <- rbind(aap1,aap2)
+# aap1 = head(data, n = 201)
+data <- merge(orders, data, by = c("real_block_id", "block_size"), sort = FALSE)
+data <- data[order(data$id, data$block_id, data$trial_number),]
+```
+
+
+#### Overall scores
+
+##### Overall score across blocks (m) and overall reaction time (sp)
+
+```{r, echo=FALSE}
+# total_scores
+# data$total_score_overall[data$trial_number == max(data$trial_number) & data$block_id == max(data$block_id)]
+
+agg = "id" # grouping var
+
+# calc speeds
+cdata.speed <- aggregate(data["rt"], by=data[c("block_id", agg)], FUN=sum)
+names(cdata.speed)[names(cdata.speed)=="rt"] <- "speed"
+cdata.speed.m <- aggregate(cdata.speed["speed"], by=cdata.speed[c(agg)], FUN=mean)
+names(cdata.speed.m)[names(cdata.speed.m)=="speed"] <- "sp.m"
+cdata.speed.sd <- aggregate(cdata.speed["speed"], by=cdata.speed[c(agg)], FUN=sd)
+names(cdata.speed.sd)[names(cdata.speed.sd)=="speed"] <- "sp.sd"
+cdata.sp <- merge(cdata.speed.m, cdata.speed.sd)
+# cdata.sp
+
+# age
+cdata.group <- ddply(data, .(id), summarize, age_group = age_group[1])
+cdata.sp <- merge(cdata.sp, cdata.group)
+
+# blocks
+blocks <- data[data$trial_number == max(data$trial_number),]
+
+# calc avg score per pp across blocks
+cdata.n <- aggregate(blocks["block_score"], by=blocks[c(agg)], FUN=length)
+names(cdata.n)[names(cdata.n)=="block_score"] <- "n"
+cdata.m <- aggregate(blocks["block_score"], by=blocks[c(agg)], FUN=mean)
+names(cdata.m)[names(cdata.m)=="block_score"] <- "m"
+cdata.sd <- aggregate(blocks["block_score"], by=blocks[c(agg)], FUN=sd)
+names(cdata.sd)[names(cdata.sd)=="block_score"] <- "sd"
+cdata <- merge(cdata.n, cdata.m)
+cdata <- merge(cdata, cdata.sd)
+cdata$se <- cdata$sd / sqrt(cdata$n)
+cdata <- merge(cdata, cdata.sp)
+cdata
+```
+
+
+##### Overall score across groups (m) and overall reaction time (sp)
+
+```{r}
+cdata.test <- ddply(cdata, .(age_group), summarize,
+                    n = length(n),
+                    m = mean(m),
+                    sd = mean(sd),
+                    se = mean(se),
+                    sp.m = mean(sp.m),
+                    age = mean(age))
+cdata.test
+```
+
+
+
+```{r}
+ttestfromMeans <- function(cdata)
+{
+  df <- cdata$n[1] + cdata$n[2] - 2
+  poolvar <- (((cdata$n[1]-1)*cdata$sd[1]^2)+((cdata$n[2]-1)*cdata$sd[2]^2))/df
+  t <- (cdata$m[1]-cdata$m[2])/sqrt(poolvar*((1/cdata$n[1])+(1/cdata$n[2])))
+  sig<-2*(1-(pt(abs(t),df)))
+  paste("df: ", df, ", t: ", round(t, digits = 2), ", sig: ", round(sig, digits = 2))
+}
+```
+
+```{r, results='hide', echo=F, eval=F}
+## T-test between age groups
+cdata.test$n <- 36 ## assuming all pp's are there
+ttestfromMeans(cdata.test)
+```
+
+```{r, cache=FALSE}
+npp = 5
+aap = 3
+# avg score per block across pp's
+cdata.bl <- aggregate(blocks["block_score"], by=blocks[c("block_id", "age_group")], FUN=mean)
+names(cdata.bl)[names(cdata.bl)=="block_score"] <- "m"
+# cdata.bl$g.m <- ave(cdata.bl$m, cdata.bl$age_group) # standard method for group means
+cdata.bl <- ddply(cdata.bl, "age_group", transform, g.m = mean(m)) # plyr method for group means
+cdata.bl$high <- cdata.bl$m - cdata.bl$g.m # how far off the group mean someone in a block is
+
+blocks <- data[data$trial_number == max(data$trial_number),] 
+blocks <- blocks[order(blocks$id, blocks$block_id),]
+blocks$block_size_id <- 0
+blocks$block_size_id[blocks$block_size == 4] <- rep(1:8,npp) ## following experiment order
+blocks$block_size_id[blocks$block_size == 8] <- rep(1:8,npp) ## following experiment order
+
+
+blocks <- blocks[order(blocks$id, blocks$real_block_id),]
+blocks$block_size_real_id <- 0
+blocks$block_size_real_id[blocks$block_size == 4] <- rep(1:8,npp) ## following experiment order
+blocks$block_size_real_id[blocks$block_size == 8] <- rep(1:8,npp) ## following experiment order
+
+# blocks
+
+source("../scripts/extra.R")
+tgc <- summarySE(blocks, measurevar="block_score", groupvars=c("block_size_id","id", "block_size"))
+tgc <- tgc[,1:5] ## pilot no se 
+tgc$se = 0
+pd <- position_dodge(0.1) # move them .05 to the left and right
+ggplot(tgc, aes(x=block_size_id, y=block_score, colour=id, group=id)) + 
+    geom_errorbar(aes(ymin=block_score-se, ymax=block_score+se), colour="black", width=.1, position=pd) +
+    geom_line(position=pd) +
+    geom_point(position=pd, size=3, shape=21, fill="white") + # 21 is filled circle
+    xlab("Problem Number (Chronological)") +
+    ylab("Score") +
+    facet_grid(block_size ~ .) +
+    scale_colour_hue(name="id",    
+#                      breaks=c("old", "young"),
+#                      labels=c("Old", "Young"),
+                     l=40) +                    # Use darker colors, lightness=40
+    ggtitle("Individual Performance across blocks") +
+    expand_limits(y=0) +                        # Expand y range
+    scale_y_continuous(breaks=0:100*10, limits = c(0,100)) +
+    scale_x_continuous(breaks=0:8*1) +          
+    theme_bw() +
+    theme(legend.justification=c(1,0),
+          legend.position=c(1,0))               # Position legend in left / right, bottom / top
+# ggsave("blocks_ind.png", width = 6, height = 4)
+```
+
+```{r}
+
+tgc <- summarySE(blocks, measurevar="block_score", groupvars=c("block_size_id", "age_group", "block_size"))
+pd <- position_dodge(0.1) # move them .05 to the left and right
+# tgc$se = 0
+ggplot(tgc, aes(x=block_size_id, y=block_score, colour=age_group, group=age_group)) + 
+    geom_errorbar(aes(ymin=block_score-se, ymax=block_score+se), colour="black", width=.1, position=pd) +
+    geom_line(position=pd) +
+    geom_point(position=pd, size=3, shape=21, fill="white") + # 21 is filled circle
+    xlab("Problem number (chronological)") +
+    ylab("Score") +
+    facet_grid(block_size ~ .) +
+    scale_colour_hue(name="Age group",          # Legend label, use darker colors
+                     breaks=c("old", "young"),
+                     labels=c("Old", "Young"),
+                     l=40) +                    # Use darker colors, lightness=40
+    ggtitle("The Effect of Age on\nPerformance across blocks") +
+    expand_limits(y=0) +                        # Expand y range
+    scale_y_continuous(breaks=0:100*10, limits = c(0,100)) +
+    scale_x_continuous(breaks=0:8*1) +          
+    theme_bw() +
+    theme(legend.justification=c(1,0),
+#           legend.position=c(1,.45))           # Position legend in left / right, bottom / top
+           legend.position=c(1,0))              
+# ggsave("blocks.png", width = 6, height = 4)
+```
+
+```{r}
+# blocks$order
+blocks <- data[data$trial_number == max(data$trial_number),]
+tgc <- summarySE(blocks, measurevar="block_score", groupvars=c("order","age_group", "block_size"))
+pd <- position_dodge(0.1) # move them .05 to the left and right
+tgc$block_size <- as.factor(tgc$block_size )
+ggplot(tgc, aes(x=order, y=block_score, colour=age_group, shape=block_size)) + 
+    geom_errorbar(aes(ymin=block_score-se, ymax=block_score+se), colour="black", width=.1, position=pd) +
+    geom_line(position=pd) +
+#     geom_point(position=pd, size=3, shape=21, fill="white") + # 21 is filled circle
+    geom_point(position=pd, size=2, fill="white") + # 21 is filled circle
+    xlab("Problem type") +
+    ylab("Score") +
+#     facet_grid(. ~ block_size) +
+    scale_colour_hue(name="Age group",          # Legend label, use darker colors
+                     breaks=c("old", "young"),
+                     labels=c("Old", "Young"),
+                     l=40) +                    # Use darker colors, lightness=40
+    scale_shape(name="Block size", 
+                solid = T, 
+                breaks = c(4,8), 
+                labels = c("Four", "Eight")) +  
+    ggtitle("The Effect of Age on\nPerformance across blocks") +
+    expand_limits(y=0) +                        # Expand y range
+    theme_bw() +
+#     theme(legend.justification=c(1,0),
+#           legend.position=c(1,.45)) + 
+    scale_y_continuous(breaks=0:100*10, limits = c(0,100)) +
+    scale_x_continuous(breaks=0:16*1)          
+# ggsave("blocks_10.png", width = 6, height = 4)
+```
+
+```{r, include=T}
+## Reading times between blocks
+
+# log$timestrip <- as.POSIXct(log$timestrip) # convert to POSIXct to use in data frames / ddply
+# log$timestrip[1]
+# class(log$timestrip[1])
+reading <- data.frame()
+# reading <- rbind(reading, "1")
+for(i in 2:length(unique(data$block_id))) {
+  inftrial <- log[log$trial_number == 0 & log$block_id == i,] 
+  lastplaintrial <- log[log$trial_number == 99 & log$block_id == i - 1,] # time spent on reading information
+  reading <- rbind(reading,difftime(inftrial$timestrip, lastplaintrial$timestrip, unit="secs"))
+}
+inftrial <- log[log$trial_number == 0 & log$block_id == 9,] # time spent on first information trial
+# colnames(reading) <- inftrial$age
+# reading
+# \cleartoleftpage
+```
+
+
+\cleardoublepage
+
+
+
+```{r, echo=FALSE}
+# http://stat.wharton.upenn.edu/~buja/STAT-101/src-probability.R
+make.RV <- function(vals, probs.or.odds) {
+  names(vals) <- probs.or.odds;  class(vals) <- "RV";  vals } 
+
+# Obtain the list of probabilities from a random variable: p(x)
+probs <- function(X, scipen=10, digits=22) {
+  pr <- sapply(names(X), function(pstr) eval(parse(text=pstr)));
+  options(scipen=scipen)
+  names(pr) <- X
+  pr <- pmax(pr,0)
+  if(any(is.na(pr))) pr[is.na(pr)] <- pmax(0, (1-sum(pr[!is.na(pr)]))/sum(is.na(pr)))
+  pr/sum(pr) }
+
+# Expected value of a random variable:
+E <- function(x1, x2, p1, p2) { sum(c(x1, x2)*c(p1, p2)) }
+
+# Variance of a random variable:
+# V <- function(X) { E((X-E(X))^2) }
+V <- function(x1, x2, p1, p2) { E(
+  (x1-E(x1, x2, p1, p2))^2, 
+  (x2-E(x1, x2, p1, p2))^2,
+  p1, 
+  p2) }
+
+```
+
+
+#### EV's
+
+```{r}
+## Lookup ev's in problem specification files
+change <- "/thirddata/conditions"
+temp = paste(base, change, sep='')
+setwd(temp)
+dflist = lapply(list.files(pattern="*param_4"), read.table, header = T, sep = "")
+setwd(base)
+df4 <- read.table("scripts/orders4.txt", header = T)
+i = 1
+for (i in 1:length(dflist)) {
+  dflist[[i]]$inc <- i*2-1
+  dflist[[i]]$dec <- i*2
+  dflist[[i]]$i <- i
+  order <- dflist[[i]]$Prob1
+  row = c()
+  for(j in 1:nrow(df4)) {
+    row[j] <- all(as.numeric(df4[j,] ) == order)
+  }
+  row.names(df4[row,])
+  dflist[[i]]$order <- as.integer(row.names(df4[row,]))
+}
+# dflist
+
+log <- do.call(rbind, dflist, quote = T)
+log <- log[complete.cases(log),]
+# log$timestrip <- strptime(log$timestamp, "%Y-%b%d-%H.%M.%S")
+log$ID <- log$ID - 1
+log$block_size = 4
+cond_4 <- log
+# cond_4
+
+setwd(temp)
+dflist = lapply(list.files(pattern="*param_8"), read.table, header = T, sep = "")
+setwd(base)
+df8 <- read.table("scripts/orders8.txt", header = T)
+
+for (i in 1:length(dflist)) {
+  dflist[[i]]$inc <- i*2
+  dflist[[i]]$dec <- i*2-1
+  dflist[[i]]$i <- i
+  order <- dflist[[i]]$Prob1
+  row = c()
+  for(j in 1:nrow(df8)) {
+    row[j] <- all(as.numeric(df8[j,] ) == order)
+  }
+  row.names(df4[row,])
+  dflist[[i]]$order <- as.integer(row.names(df8[row,]))
+}
+
+log <- do.call(rbind, dflist, quote = T)
+log <- log[complete.cases(log),]
+# log$timestrip <- strptime(log$timestamp, "%Y-%b%d-%H.%M.%S")
+log$ID <- log$ID - 1
+log$block_size = 8
+cond_8 <- log
+# cond_8
+cond <- rbind(cond_4, cond_8)
+names(cond)[names(cond)=="ID"] <- "bandit_id"
+names(cond)[names(cond)=="i"] <- "block_size_id"
+
+# cond <- cond[order(cond$block_size, cond$block_size_id, cond$Prob1),]
+cond$bandit_real_id[cond$block_size == 4] <- rep(1:4,8) ## following experiment order
+cond$bandit_real_id[cond$block_size == 8] <- rep(1:8,8) ## following experiment order
+
+cond$order[cond$block_size == 4] <- (cond$order[cond$block_size == 4] * 2) - 1
+cond$order[cond$block_size == 8] <- cond$order[cond$block_size == 8] * 2
+# names(cond)[names(cond)=="order"] <- "cond"
+log <- cond
+```
+
+
+```{r}
+## Retrieve EV's
+log$ev <- 0
+log$v <- 0
+log$maxev <- 0
+for(i in 1:nrow(log)) {
+  log$ev[i] <- E(log$Payoff1[i], log$Payoff2[i], log$Prob1[i], log$Prob2[i])
+  log$v[i] <- V(log$Payoff1[i], log$Payoff2[i], log$Prob1[i], log$Prob2[i])
+}
+# head(log)
+# colnames(log)[1] <- "bandit_id"
+# colnames(log)[6] <- "block_id"
+# colnames(log)[6] <- "real_block_id"
+# colnames(log)[7] <- "block_size_id"
+
+log$cond <- interaction(log$block_size_id, log$block_size)
+log$cond <- interaction(log$block_size_id, log$block_size)
+for(i in unique(log$cond)) {
+  log$maxev[log$cond == i] <- max(log$ev[log$cond == i])
+}
+# log
+# data.ev <- merge(data, log, by = c("bandit_id", "block_id"), all.x = T)
+# write.table(data.ev, file = "data.ev.csv", sep = ",")
+```
+
+
+Proportion of all choices from the highest EV option across all trials
+
+```{r, include=T, eval=T}
+# head(data)
+# data <- subset(data, select = -timestamp)
+# data <- subset(data, select = -timestrip)
+# data <- subset(data, select = -total_score_overall)
+# summary(data.ev)
+
+# uneven
+# data$block_size_id[data$real_block_id %% 2 == 1] = (data$real_block_id[data$real_block_id %% 2 == 1] + 1)/2
+# data$order = data$real_block_id
+
+# data$order[as.numeric(as.character(data$id)) %% 2 == 1 & data$real_block_id %% 2 == 1] = (data$real_block_id[data$real_block_id %% 2 == 1])
+# data$order[as.numeric(as.character(data$id)) %% 2 == 1 & data$real_block_id %% 2 == 0] = (data$real_block_id[data$real_block_id %% 2 == 1] - 1)
+# data$order
+
+# data$block_size_id[data$real_block_id %% 2 == 0]            = (data$real_block_id[data$real_block_id %% 2 == 0])/2
+# data$order[as.numeric(as.character(data$id)) %% 2 == 0 & data$real_block_id %% 2 == 1] = 
+#   (data$real_block_id[as.numeric(as.character(data$id)) %% 2 == 0 & data$real_block_id %% 2 == 1] - 1)
+# data$order[as.numeric(as.character(data$id)) %% 2 == 0 & data$real_block_id %% 2 == 0] = 
+#   (data$real_block_id[as.numeric(as.character(data$id)) %% 2 == 0 & data$real_block_id %% 2 == 0])
+
+
+# head(log)
+# log$real_block_id = log$block_id
+# data$bandit_id = data$bandit_id + 1
+# unique(data$bandit_real_id)
+# colnames(log)
+# colnames(data)
+# head(log)
+# aap = head(data, n = 201)
+# aap = data[1600:1801,]
+
+# unique(data$order[data$id == 60])
+# unique(data$order)
+# unique(log$order)
+
+data.ev <- merge(data, log, by = c("bandit_id", "order", "block_size"), sort = F) 
+# data.ev <- merge(data, log, by = c("bandit_real_id", "block_size_id", "block_size"), sort = F) 
+data.ev <- data.ev[order(data.ev$id, data.ev$block_id, data.ev$trial_number),]
+rownames(data.ev) = 1:nrow(data.ev)
+
+# head(data, n = 101)
+# tail(data.ev, n = 101)
+data.ev$max <- F
+data.ev$max[data.ev$ev >= data.ev$maxev] <- T
+data.ev$ev <- as.factor(data.ev$ev)
+# head(data.ev, n = 20)
+# data.ev$timestrip<-as.POSIXct(data.ev$timestrip) # convert to POSIXct to use in data frames / ddply
+
+# unique(data.ev$order)
+
+# data.ev = data.ev[data.ev$id == 60,]
+data.ev.test <- ddply(data.ev, .(order, block_size, id, ev, age_group), summarise, 
+                      ev.prop = length(ev), .drop = T)
+data.ev.test$age_group <- as.factor(data.ev.test$age_group)
+# sum(data.ev.test$ev.prop[data.ev.test$age_group == "old" & data.ev.test$block_size == 8 & data.ev.test$block_size_id == 2])
+# data.ev.test
+# 16*4 = 64 blocks
+# half has 4 options --> 8*4=32 ev props
+# half has 8 options --> 8*8=64
+# 96 ev props in total
+# 5 pps = 5 * 96 = 480
+
+# add missing rows or drop wrong rows (won't be necessary with enough data)
+# Both and keep with degrees of freedom (BAD)
+tgc2 <- summarySE(data.ev.test, measurevar="ev.prop", groupvars=c("age_group", "block_size", "ev"))
+tgc2$ev.prop <- tgc2$sum / (npp*8) # pps number of blocks
+# sum(tgc2$ev.prop)
+# tgc2
+
+# First within, than between, and lose within degrees of freedom
+# within sd's
+# calc sd across blocks
+tgc <- summarySE(data.ev.test, measurevar="ev.prop", groupvars=c("id", "age_group", "block_size", "ev"))
+tgc$ev.prop <- tgc$sum / 8
+# tgc
+# sum(tgc$ev.prop[tgc$age_group == "old" & tgc$block_size == 8])
+
+# between sd's
+# calc sd across ids 
+# 1 pp
+tgc <- summarySE(tgc, measurevar="ev.prop", groupvars=c("block_size", "age_group", "ev"))
+
+# tgc$ev.prop <- tgc$sum / 2
+# tgc
+# sum(tgc$ev.prop[tgc$age_group == "old" & tgc$block_size == 8])
+```
+
+```{r ev-thirddata-selectedthirddata-error-bars, cache=FALSE}
+theme_set(theme_bw())
+# tgc$se = 0
+pd <- position_dodge(0.6) # move them .05 to the left and right
+class(tgc$ev)
+
+levels(tgc$ev)
+levels(tgc$ev) <- gsub("0.0", ".0", levels(tgc$ev))
+levels(tgc$ev) <- gsub("0.", ".", levels(tgc$ev))
+levels(tgc$ev)[levels(tgc$ev)=="..5"] <- ".075"
+
+ggplot(tgc, aes(x = ev, y = ev.prop, fill = age_group)) + 
+  geom_bar(position=pd, stat="identity") + 
+  geom_errorbar(aes(ymax=ev.prop+se , ymin= ev.prop-se), width = 0, position = pd) + 
+  facet_wrap(~ block_size) + 
+  labs(x="Expected value", y="Average proportion", title="Age-related differences across choice environments", fill = "Age")
+ggsave("ev-thirddata-selectedthirddata-error-bars.png", width = 6, height = 4)
+```
+
+```{r}
+pd <- position_dodge(0.6) # move them .05 to the left and right
+ggplot(tgc, aes(x = age_group, y = ev.prop, fill = ev)) + 
+  geom_bar(position=pd, stat="identity") + 
+  facet_grid(. ~ block_size) + 
+#   facet_wrap(block_size, ncol = 1) + 
+  scale_x_discrete(
+    breaks = c("young", "old"),
+    labels = c("Young", "Old")) + 
+  scale_fill_brewer() + 
+  geom_errorbar(aes(ymax=ev.prop+se , ymin= ev.prop-se), width = 0, position = pd) + 
+  labs(x="Age", y="Average proportion", title="EV's with error bars", fill = "Expected value")
+# ggsave("ev_pilot2_error.png", width = 6, height = 4)
+```
+
+```{r}
+ggplot(aes(x=age_group, y = ev.prop, fill=ev), data=tgc) + 
+  geom_bar(position='fill', stat="identity") + 
+  scale_x_discrete(
+    breaks = c("young", "old"),
+    labels = c("Young", "Old")) + 
+  facet_grid(. ~ block_size) +
+  scale_fill_brewer() + 
+  labs(x="Age", y="Average proportion", title="Choosing options proportional to EV", fill = "Expected value")
+# ggsave("ev_pilot2_bad.png", width = 6, height = 4)
+```
+
+```{r}
+# tgc <- tgc2 
+
+group_midpoints = function(g) {
+  cumsums = c(0, cumsum(g$ev.prop))
+  diffs = diff(cumsums)
+  pos = head(cumsums, -1) + (0.5 * diffs)
+  return(data.frame(ev=g$ev, pos=pos, ev.prop=g$ev.prop))
+}
+dat_4 = ddply(tgc[tgc$block_size == 4,], .(age_group), group_midpoints)
+dat_8 = ddply(tgc[tgc$block_size == 8,], .(age_group), group_midpoints)
+# dat_y = ddply(tgc[tgc$age_group == "young",], .(block_size), group_midpoints)
+# dat_o = ddply(tgc[tgc$age_group == "old",], .(block_size), group_midpoints)
+dat <- rbind(dat_4, dat_8)
+tgc_pos <- merge(tgc, dat, by = c("ev", "ev.prop", "age_group"))
+tgc_pos$se <- round(tgc_pos$se, digits = 1)
+ggplot(aes(x=age_group, fill=ev, y = ev.prop), data=tgc_pos) + 
+  geom_bar(stat="identity") + 
+#   geom_bar(aes(weight=Freq), position="stack") +
+  scale_x_discrete(
+    breaks = c("young", "old"),
+    labels = c("Young", "Old")) + 
+  facet_grid(. ~ block_size) +
+  scale_y_continuous(breaks=0:100*20, limits = c(0,100)) +
+  scale_fill_brewer(guide = F) + 
+#   scale_fill_discrete(guide = FALSE) +
+  geom_text(position = "identity", aes(x = age_group, y = pos, ymax = 1, label = ev), size=2, parse = T) + 
+#   geom_text(position = "identity", aes(x = block_size, y = pos, ymax = 1, label = paste(ev.prop.r, "  (", se, ")",sep = "")), size=2, parse = T) + 
+#   geom_text(position = "identity", aes(x = block_size, y = pos, ymax = 1, label = paste(se, "  (", se, ")",sep = ""), size=4), parse = T) + 
+#   geom_text(position = "identity", aes(x = block_size, y = pos, ymax = 1, label = se, size=4)) + 
+  labs(x="Age", y="Average proportion", title="Adding labels for EV's instead of legends", colour = "Expected value")
+# ggsave("ev_pilot2.png", width = 6, height = 4)
+```
+
+
+```{r}
+## %choices from lowest V 
+
+# for (i in 1:nrow(data)) {
+#   if (data$payoff )
+# }
+```
+
+```{r}
+## %choices from HHLL instead of LHHL
+
+```

@@ -1,0 +1,304 @@
+#### Overall scores
+
+The tables show performance and reaction time statistics per participant and per age group. 
+
+```{r}
+ttestfromMeans <- function(cdata)
+{
+  df <- cdata$n[1] + cdata$n[2] - 2
+  poolvar <- (((cdata$n[1]-1)*cdata$sd[1]^2)+((cdata$n[2]-1)*cdata$sd[2]^2))/df
+  t <- (cdata$m[1]-cdata$m[2])/sqrt(poolvar*((1/cdata$n[1])+(1/cdata$n[2])))
+  sig<-2*(1-(pt(abs(t),df)))
+  paste("df: ", df, ", t: ", round(t, digits = 2), ", sig: ", round(sig, digits = 5))
+}
+```
+
+
+```{r, echo=FALSE, results='hide'}
+## Read multiple log files
+temp = paste(base, dataloc, sep='')
+setwd(temp)
+dflist = lapply(list.files(pattern="*.txt"), read.table, header = T, sep = "")
+setwd(wd)
+
+log <- do.call(rbind, dflist)
+log <- log[complete.cases(log),]
+log$id <- as.factor(log$id)
+
+# Sys.setlocale("LC_ALL", "German_Germany")
+
+data <- log
+
+data$age_group <- "young"
+data$age_group[data$age > 50] <- "old"
+
+data$block_size_start <- 8
+data$block_size_start[as.integer(as.character(data$id)) %% 2 == 1] <- 4
+data$block_size <- data$block_size_start
+data$block_size[data$block_id %% 2 == 0 & data$block_size_start == 8] <- 4
+data$block_size[data$block_id %% 2 == 0 & data$block_size_start == 4] <- 8
+
+data$block_order <- "dec"
+data$check <- (((as.integer(as.character(data$id))-1) %% 4) < 2) == T 
+data$block_order[data$check] <- "inc"
+data$block_order <- as.factor(data$block_order)
+
+data$real_block_id <- data$block_id
+data$real_block_id[data$block_order == "dec"] = 10 - data$block_id[data$block_order == "dec"] 
+data$real_block_id[data$real_block_id <= 0] = (data$real_block_id[data$real_block_id <= 0] + 16)
+
+struct <- rbind(c(1, 4, 2, 4, 1),
+c(2, 8, 3, 8, 2),
+c(3, 4, 4, 4, 3),
+c(4, 8, 5, 8, 4),
+c(5, 4, 6, 4, 5),
+c(6, 8, 7, 8, 6),
+c(7, 4, 8, 4, 7),
+c(8, 8, 9, 8, 8),
+c(9, 4, 10, 4, 9),
+c(10, 8, 11, 8, 10),
+c(11, 4, 12, 4, 11),
+c(12, 8, 13, 8, 12),
+c(13, 4, 14, 4, 13),
+c(14, 8, 15, 8, 14),
+c(15, 4, 16, 4, 15),
+c(16, 8, 1, 8, 16))
+colnames(struct) <- c("real_block_id", "block_size", "real_block_id", "block_size", "order")
+aap1 <- struct[,c(1,2,5)]
+aap2 <- struct[,c(3,4,5)]
+orders <- rbind(aap1,aap2)
+# aap1 = head(data, n = 201)
+data <- merge(orders, data, by = c("real_block_id", "block_size"), sort = FALSE)
+data <- data[order(data$id, data$block_id, data$trial_number),]
+```
+
+
+```{r, include=FALSE}
+agg = "id" # grouping var
+
+# calc speeds
+cdata.speed <- aggregate(data["rt"], by=data[c("block_id", agg)], FUN=sum)
+names(cdata.speed)[names(cdata.speed)=="rt"] <- "speed"
+cdata.speed.m <- aggregate(cdata.speed["speed"], by=cdata.speed[c(agg)], FUN=mean)
+names(cdata.speed.m)[names(cdata.speed.m)=="speed"] <- "sp.m"
+cdata.speed.sd <- aggregate(cdata.speed["speed"], by=cdata.speed[c(agg)], FUN=sd)
+names(cdata.speed.sd)[names(cdata.speed.sd)=="speed"] <- "sp.sd"
+cdata.sp <- merge(cdata.speed.m, cdata.speed.sd)
+# cdata.sp
+
+# age
+cdata.group <- ddply(data, .(id), summarize, 
+                     age_group = age_group[1],
+                     age = age[1])
+cdata.sp <- merge(cdata.sp, cdata.group)
+
+# blocks
+blocks <- data[data$trial_number == max(data$trial_number),]
+
+# calc avg score per pp across blocks
+cdata.n <- aggregate(blocks["block_score"], by=blocks[c(agg)], FUN=length)
+names(cdata.n)[names(cdata.n)=="block_score"] <- "n"
+cdata.m <- aggregate(blocks["block_score"], by=blocks[c(agg)], FUN=mean)
+names(cdata.m)[names(cdata.m)=="block_score"] <- "m"
+cdata.sd <- aggregate(blocks["block_score"], by=blocks[c(agg)], FUN=sd)
+names(cdata.sd)[names(cdata.sd)=="block_score"] <- "sd"
+cdata <- merge(cdata.n, cdata.m)
+cdata <- merge(cdata, cdata.sd)
+cdata$se <- cdata$sd / sqrt(cdata$n)
+cdata <- merge(cdata, cdata.sp)
+cdata$m.sc <- scale(cdata$m, center = TRUE, scale = TRUE)
+cdata$sd.sc <- scale(cdata$sd, center = TRUE, scale = TRUE)
+```
+
+
+```{r, results='asis', include=FALSE}
+cdata <- cdata[order(cdata$age_group, cdata$m, decreasing = TRUE),]
+stargazer(cdata, summary = FALSE, header=FALSE, rownames = FALSE,
+          title = "Score (m) and speed (sp) across blocks",
+          digits = 2, digits.extra = 2, initial.zero = FALSE,
+          label = "mspblocks",
+          font.size = "tiny")
+# write.table(cdata, file = "../data/totalscoresandspeeds.csv")
+```
+
+
+```{r, include=FALSE}
+cdata.test <- ddply(cdata, .(age_group), summarize,
+                    n = length(n),
+                    m = mean(m),
+					m.sc = mean(m.sc),
+                    sd = mean(sd),
+					sd.sc = mean(sd.sc),
+                    se = mean(se),
+                    sp.m = mean(sp.m),
+                    age = mean(age))
+# cdata.test
+```
+
+```{r, results='asis', include=FALSE}
+stargazer(cdata.test, summary = FALSE, header=FALSE, rownames = FALSE,
+          title = "Score (m) and speed (sp) across groups",
+          digits = 2, digits.extra = 2, initial.zero = FALSE,
+          label = "mspgroups",
+          font.size = "tiny")
+```
+
+
+\newpage 
+
+```{r, echo=FALSE}
+alldata <- data 
+
+data <- alldata[alldata$block_size == 4,]
+
+agg = "id" # grouping var
+
+# calc speeds
+cdata.speed <- aggregate(data["rt"], by=data[c("block_id", agg)], FUN=sum)
+names(cdata.speed)[names(cdata.speed)=="rt"] <- "speed"
+cdata.speed.m <- aggregate(cdata.speed["speed"], by=cdata.speed[c(agg)], FUN=mean)
+names(cdata.speed.m)[names(cdata.speed.m)=="speed"] <- "sp.m"
+cdata.speed.sd <- aggregate(cdata.speed["speed"], by=cdata.speed[c(agg)], FUN=sd)
+names(cdata.speed.sd)[names(cdata.speed.sd)=="speed"] <- "sp.sd"
+cdata.sp <- merge(cdata.speed.m, cdata.speed.sd)
+# cdata.sp
+
+# age
+cdata.group <- ddply(data, .(id), summarize, 
+                     age_group = age_group[1],
+                     age = age[1])
+cdata.sp <- merge(cdata.sp, cdata.group)
+
+# blocks
+blocks <- data[data$trial_number == max(data$trial_number),]
+
+# calc avg score per pp across blocks
+cdata.n <- aggregate(blocks["block_score"], by=blocks[c(agg)], FUN=length)
+names(cdata.n)[names(cdata.n)=="block_score"] <- "n"
+cdata.m <- aggregate(blocks["block_score"], by=blocks[c(agg)], FUN=mean)
+names(cdata.m)[names(cdata.m)=="block_score"] <- "m"
+cdata.sd <- aggregate(blocks["block_score"], by=blocks[c(agg)], FUN=sd)
+names(cdata.sd)[names(cdata.sd)=="block_score"] <- "sd"
+cdata <- merge(cdata.n, cdata.m)
+cdata <- merge(cdata, cdata.sd)
+cdata$se <- cdata$sd / sqrt(cdata$n)
+cdata <- merge(cdata, cdata.sp)
+cdata$sd.sc <- scale(cdata$sd, center = TRUE, scale = TRUE)
+cdata$m.sc <- scale(cdata$m, center = TRUE, scale = TRUE)
+cdata4 <- cdata
+```
+
+
+```{r, results='asis'}
+cdata <- cdata[order(cdata$age_group, cdata$m, decreasing = TRUE),]
+stargazer(cdata, summary = FALSE, header=FALSE, rownames = FALSE,
+          title = "Score (m) and speed (sp) across 4 option blocks",
+          digits = 2, digits.extra = 2, initial.zero = FALSE,
+          label = "mspblocks",
+          font.size = "tiny")
+# write.table(cdata, file = "../data/totalscoresandspeeds.csv")
+```
+
+```{r}
+cdata.test <- ddply(cdata, .(age_group), summarize,
+                    n = length(n),
+                    m = mean(m),
+					m.sc = mean(m.sc),
+                    sd = mean(sd),
+					sd.sc = mean(sd.sc),
+                    se = mean(se),
+                    sp.m = mean(sp.m),
+                    age = mean(age))
+# cdata.test
+```
+
+```{r, results='asis'}
+stargazer(cdata.test, summary = FALSE, header=FALSE, rownames = FALSE,
+          title = "Score (m) and speed (sp) across groups",
+          digits = 2, digits.extra = 2, initial.zero = FALSE,
+          label = "mspgroups",
+          font.size = "tiny")
+```
+
+\newpage 
+
+
+```{r, echo=FALSE}
+data <- alldata[alldata$block_size == 8,]
+
+agg = "id" # grouping var
+
+# calc speeds
+cdata.speed <- aggregate(data["rt"], by=data[c("block_id", agg)], FUN=sum)
+names(cdata.speed)[names(cdata.speed)=="rt"] <- "speed"
+cdata.speed.m <- aggregate(cdata.speed["speed"], by=cdata.speed[c(agg)], FUN=mean)
+names(cdata.speed.m)[names(cdata.speed.m)=="speed"] <- "sp.m"
+cdata.speed.sd <- aggregate(cdata.speed["speed"], by=cdata.speed[c(agg)], FUN=sd)
+names(cdata.speed.sd)[names(cdata.speed.sd)=="speed"] <- "sp.sd"
+cdata.sp <- merge(cdata.speed.m, cdata.speed.sd)
+# cdata.sp
+
+# age
+cdata.group <- ddply(data, .(id), summarize, 
+                     age_group = age_group[1],
+                     age = age[1])
+cdata.sp <- merge(cdata.sp, cdata.group)
+
+# blocks
+blocks <- data[data$trial_number == max(data$trial_number),]
+
+# calc avg score per pp across blocks
+cdata.n <- aggregate(blocks["block_score"], by=blocks[c(agg)], FUN=length)
+names(cdata.n)[names(cdata.n)=="block_score"] <- "n"
+cdata.m <- aggregate(blocks["block_score"], by=blocks[c(agg)], FUN=mean)
+names(cdata.m)[names(cdata.m)=="block_score"] <- "m"
+cdata.sd <- aggregate(blocks["block_score"], by=blocks[c(agg)], FUN=sd)
+names(cdata.sd)[names(cdata.sd)=="block_score"] <- "sd"
+cdata <- merge(cdata.n, cdata.m)
+cdata <- merge(cdata, cdata.sd)
+cdata$se <- cdata$sd / sqrt(cdata$n)
+cdata <- merge(cdata, cdata.sp)
+cdata$sd.sc <- scale(cdata$sd, center = TRUE, scale = TRUE)
+cdata$m.sc <- scale(cdata$m, center = TRUE, scale = TRUE)
+cdata8 <- cdata
+```
+
+
+```{r, results='asis'}
+cdata <- cdata[order(cdata$age_group, cdata$m, decreasing = TRUE),]
+stargazer(cdata, summary = FALSE, header=FALSE, rownames = FALSE,
+          title = "Score (m) and speed (sp) across 8 option blocks",
+          digits = 2, digits.extra = 2, initial.zero = FALSE,
+          label = "mspblocks",
+          font.size = "tiny")
+# write.table(cdata, file = "../data/totalscoresandspeeds.csv")
+```
+
+```{r}
+cdata.test <- ddply(cdata, .(age_group), summarize,
+                    n = length(n),
+                    m = mean(m),
+					m.sc = mean(m.sc),
+                    sd = mean(sd),
+					sd.sc = mean(sd.sc),
+                    se = mean(se),
+                    sp.m = mean(sp.m),
+                    age = mean(age))
+# cdata.test
+```
+
+```{r, results='asis'}
+stargazer(cdata.test, summary = FALSE, header=FALSE, rownames = FALSE,
+          title = "Score (m) and speed (sp) across groups",
+          digits = 2, digits.extra = 2, initial.zero = FALSE,
+          label = "mspgroups",
+          font.size = "tiny")
+```
+
+```{r}
+cdata = merge(cdata4,cdata8, by = "id", suffixes = c("4", "8"))
+# write.table(cdata, file = "../data/totalscoresandspeeds48.csv")
+```
+
+
+\newpage

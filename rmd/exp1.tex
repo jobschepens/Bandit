@@ -1,0 +1,650 @@
+\documentclass[,]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1.5in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Online material for: Aging of the Exploring Mind: Older Adults Deviate more from Optimality in Complex Choice Environments},
+            pdfauthor={Job J. Schepens},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[shorthands=off,main=]{babel}
+\else
+  \usepackage{polyglossia}
+  \setmainlanguage[]{}
+\fi
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+  \title{Online material for: ``Aging of the Exploring Mind: Older Adults Deviate
+more from Optimality in Complex Choice Environments''}
+  \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+  \author{Job J. Schepens}
+  \preauthor{\centering\large\emph}
+  \postauthor{\par}
+  \predate{\centering\large\emph}
+  \postdate{\par}
+  \date{02 February 2017}
+
+% use markdown for proceedings
+% general: put {width=50%} after every figure in intro.Rmd, 
+% 1st try: convert to pdf, convert to tex, manually copy text into cogsci.tex, manually copy references into reference section based on hyperref. Problem: references need to be generated from one file. 
+% 2nd try: work on a new cogsci rmd index file, generate apa-based tex file, copy everything into cogsci file, copy references. 
+
+% pandoc intro.Rmd --latex-engine=xelatex -o intro.tex
+% pandoc -s -S --bibliography ../docfiles/arc.bib --filter pandoc-citeproc --csl ../docfiles/apa.csl intro.Rmd --latex-engine=xelatex -o example24a.pdf
+
+
+\usepackage{pslatex}
+\usepackage{apacite}
+\usepackage{booktabs}
+
+
+\usepackage{makeidx}         % allows index generation
+
+%                              % when including figure files
+\usepackage{multicol}        % used for the two-column index
+% \usepackage{amsmath}
+\usepackage{longtable}
+\usepackage{graphicx}        % standard LaTeX graphics tool
+
+% \usepackage[unicode=true]{hyperref}
+
+\makeatletter
+\let\oldlt\longtable
+\let\endoldlt\endlongtable
+\def\longtable{\@ifnextchar[\longtable@i \longtable@ii}
+\def\longtable@i[#1]{\begin{figure}[t]
+\onecolumn
+\begin{minipage}{0.5\textwidth}
+\oldlt[#1]
+}
+\def\longtable@ii{\begin{figure}[t]
+\onecolumn
+\begin{minipage}{0.5\textwidth}
+\oldlt
+}
+\def\endlongtable{\endoldlt
+\end{minipage}
+\twocolumn
+\end{figure}}
+\makeatother
+
+\def\tightlist{}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{6}
+\tableofcontents
+}
+\newpage
+
+\subsubsection{Behavorial analysis}\label{behavorial-analysis}
+
+\paragraph{Overall scores}\label{overall-scores}
+
+The tables show performance and reaction time statistics per participant
+and per age group.
+
+\newpage 
+
+\begin{table}[!htbp] \centering 
+  \caption{Score (m) and speed (sp) across 4 option blocks} 
+  \label{mspblocks} 
+\tiny 
+\begin{tabular}{@{\extracolsep{5pt}} ccccccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+id & n & m & sd & se & sp.m & sp.sd & age\_group & age & sd.sc & m.sc \\ 
+\hline \\[-1.8ex] 
+8 & $8$ & $54.50$ & $6.63$ & $2.35$ & $23.26$ & $7.24$ & young & $23$ & $1.58$ & $2.36$ \\ 
+28 & $8$ & $53$ & $4.75$ & $1.68$ & $40.73$ & $8.61$ & young & $23$ & $$-$.10$ & $1.67$ \\ 
+11 & $8$ & $52.88$ & $4.64$ & $1.64$ & $36.66$ & $15.46$ & young & $20$ & $$-$.20$ & $1.61$ \\ 
+14 & $8$ & $52.88$ & $6.36$ & $2.25$ & $25.25$ & $6.23$ & young & $24$ & $1.34$ & $1.61$ \\ 
+10 & $8$ & $51.50$ & $5.50$ & $1.95$ & $42.39$ & $21.61$ & young & $22$ & $.57$ & $.98$ \\ 
+13 & $8$ & $51.50$ & $6.12$ & $2.16$ & $26.08$ & $26.88$ & young & $24$ & $1.12$ & $.98$ \\ 
+2 & $8$ & $51.50$ & $5.61$ & $1.98$ & $28.46$ & $6.87$ & young & $26$ & $.66$ & $.98$ \\ 
+9 & $8$ & $51.50$ & $4.57$ & $1.61$ & $21.76$ & $11.76$ & young & $26$ & $$-$.27$ & $.98$ \\ 
+19 & $8$ & $51.38$ & $4.60$ & $1.62$ & $24.32$ & $10.50$ & young & $22$ & $$-$.24$ & $.92$ \\ 
+20 & $8$ & $51.12$ & $4.73$ & $1.67$ & $30.75$ & $8.05$ & young & $25$ & $$-$.12$ & $.80$ \\ 
+5 & $8$ & $51.12$ & $6.45$ & $2.28$ & $25.02$ & $12.22$ & young & $30$ & $1.42$ & $.80$ \\ 
+22 & $8$ & $50.88$ & $5.46$ & $1.93$ & $21.82$ & $5.37$ & young & $30$ & $.54$ & $.69$ \\ 
+12 & $8$ & $50.38$ & $7.33$ & $2.59$ & $17.77$ & $3.40$ & young & $27$ & $2.21$ & $.46$ \\ 
+7 & $8$ & $50.38$ & $5.95$ & $2.10$ & $39.15$ & $38.74$ & young & $26$ & $.97$ & $.46$ \\ 
+25 & $8$ & $50.25$ & $5.60$ & $1.98$ & $117.57$ & $66.72$ & young & $22$ & $.66$ & $.40$ \\ 
+3 & $8$ & $50.25$ & $7.46$ & $2.64$ & $30.57$ & $37.56$ & young & $29$ & $2.33$ & $.40$ \\ 
+17 & $8$ & $49.88$ & $4.49$ & $1.59$ & $61.08$ & $52.39$ & young & $29$ & $$-$.34$ & $.22$ \\ 
+16 & $8$ & $49.75$ & $3.33$ & $1.18$ & $53.35$ & $10.81$ & young & $25$ & $$-$1.38$ & $.17$ \\ 
+1 & $8$ & $49.50$ & $3.74$ & $1.32$ & $31.78$ & $28.82$ & young & $27$ & $$-$1.01$ & $.05$ \\ 
+23 & $8$ & $48.88$ & $5.62$ & $1.99$ & $40.67$ & $23.41$ & young & $24$ & $.67$ & $$-$.24$ \\ 
+24 & $8$ & $48.88$ & $4.94$ & $1.75$ & $42.37$ & $13.09$ & young & $23$ & $.07$ & $$-$.24$ \\ 
+27 & $8$ & $48.88$ & $4.32$ & $1.53$ & $19.17$ & $5.62$ & young & $27$ & $$-$.49$ & $$-$.24$ \\ 
+6 & $8$ & $48.62$ & $5.37$ & $1.90$ & $26.41$ & $7.67$ & young & $19$ & $.45$ & $$-$.35$ \\ 
+15 & $8$ & $48.12$ & $3.36$ & $1.19$ & $81.63$ & $60.11$ & young & $22$ & $$-$1.35$ & $$-$.59$ \\ 
+26 & $8$ & $47.75$ & $4.23$ & $1.50$ & $50.73$ & $9.90$ & young & $23$ & $$-$.57$ & $$-$.76$ \\ 
+21 & $8$ & $47.38$ & $3.16$ & $1.12$ & $21.30$ & $10.05$ & young & $22$ & $$-$1.53$ & $$-$.93$ \\ 
+4 & $8$ & $47$ & $4.50$ & $1.59$ & $22.61$ & $7.77$ & young & $21$ & $$-$.32$ & $$-$1.11$ \\ 
+18 & $8$ & $46.75$ & $3.62$ & $1.28$ & $50.34$ & $20.71$ & young & $20$ & $$-$1.12$ & $$-$1.22$ \\ 
+29 & $8$ & $46.62$ & $3.25$ & $1.15$ & $31.52$ & $20.35$ & young & $24$ & $$-$1.45$ & $$-$1.28$ \\ 
+130 & $8$ & $55.62$ & $5.37$ & $1.90$ & $43.98$ & $32.23$ & old & $65$ & $.45$ & $2.89$ \\ 
+106 & $8$ & $51.75$ & $3.62$ & $1.28$ & $56.33$ & $12.68$ & old & $73$ & $$-$1.12$ & $1.09$ \\ 
+115 & $8$ & $51.75$ & $4.74$ & $1.68$ & $28.12$ & $8.48$ & old & $72$ & $$-$.11$ & $1.09$ \\ 
+124 & $8$ & $51.75$ & $4.13$ & $1.46$ & $87.67$ & $40.36$ & old & $70$ & $$-$.66$ & $1.09$ \\ 
+105 & $8$ & $50.75$ & $5.87$ & $2.08$ & $46.44$ & $18.99$ & old & $71$ & $.90$ & $.63$ \\ 
+109 & $8$ & $50.75$ & $5.60$ & $1.98$ & $60.17$ & $37.49$ & old & $71$ & $.66$ & $.63$ \\ 
+101 & $8$ & $50.25$ & $5.01$ & $1.77$ & $73.87$ & $47.00$ & old & $67$ & $.13$ & $.40$ \\ 
+104 & $8$ & $50$ & $4.07$ & $1.44$ & $164.35$ & $33.68$ & old & $70$ & $$-$.71$ & $.28$ \\ 
+108 & $8$ & $50$ & $5.98$ & $2.11$ & $56.77$ & $27.89$ & old & $73$ & $1.00$ & $.28$ \\ 
+126 & $8$ & $49.62$ & $5.21$ & $1.84$ & $27.42$ & $7.56$ & old & $73$ & $.31$ & $.11$ \\ 
+110 & $8$ & $49.38$ & $5.73$ & $2.03$ & $18.23$ & $4.36$ & old & $71$ & $.78$ & $$-$.01$ \\ 
+131 & $8$ & $49.12$ & $6.20$ & $2.19$ & $19.57$ & $14.93$ & old & $67$ & $1.19$ & $$-$.12$ \\ 
+114 & $8$ & $49$ & $4.14$ & $1.46$ & $43.69$ & $16.49$ & old & $72$ & $$-$.65$ & $$-$.18$ \\ 
+121 & $8$ & $49$ & $6.82$ & $2.41$ & $34.55$ & $13.64$ & old & $73$ & $1.76$ & $$-$.18$ \\ 
+107 & $8$ & $48.88$ & $2.95$ & $1.04$ & $81.52$ & $29.41$ & old & $69$ & $$-$1.72$ & $$-$.24$ \\ 
+127 & $8$ & $48.50$ & $5.18$ & $1.83$ & $146.98$ & $79.92$ & old & $65$ & $.28$ & $$-$.41$ \\ 
+120 & $8$ & $48.38$ & $4.63$ & $1.64$ & $42.11$ & $24.22$ & old & $72$ & $$-$.21$ & $$-$.47$ \\ 
+123 & $8$ & $47.88$ & $2.70$ & $.95$ & $76.55$ & $27.29$ & old & $74$ & $$-$1.94$ & $$-$.70$ \\ 
+119 & $8$ & $47.62$ & $4.66$ & $1.65$ & $35.66$ & $33.84$ & old & $71$ & $$-$.19$ & $$-$.82$ \\ 
+111 & $8$ & $47.50$ & $4.28$ & $1.51$ & $80.64$ & $21.79$ & old & $73$ & $$-$.53$ & $$-$.88$ \\ 
+112 & $8$ & $47.50$ & $3.82$ & $1.35$ & $62.01$ & $13.38$ & old & $68$ & $$-$.94$ & $$-$.88$ \\ 
+118 & $8$ & $47.50$ & $5.29$ & $1.87$ & $68.97$ & $6.77$ & old & $71$ & $.38$ & $$-$.88$ \\ 
+116 & $8$ & $47.25$ & $3.96$ & $1.40$ & $46.80$ & $9.93$ & old & $71$ & $$-$.82$ & $$-$.99$ \\ 
+125 & $8$ & $47.25$ & $3.69$ & $1.31$ & $79.97$ & $112.84$ & old & $69$ & $$-$1.05$ & $$-$.99$ \\ 
+122 & $8$ & $47.12$ & $4.73$ & $1.67$ & $64.07$ & $11.61$ & old & $69$ & $$-$.12$ & $$-$1.05$ \\ 
+113 & $8$ & $47$ & $4.04$ & $1.43$ & $62.25$ & $28.58$ & old & $72$ & $$-$.74$ & $$-$1.11$ \\ 
+128 & $8$ & $47$ & $6$ & $2.12$ & $68.45$ & $8.94$ & old & $73$ & $1.02$ & $$-$1.11$ \\ 
+129 & $8$ & $46.88$ & $4.52$ & $1.60$ & $47.92$ & $16.65$ & old & $73$ & $$-$.31$ & $$-$1.16$ \\ 
+132 & $8$ & $46.75$ & $3.92$ & $1.39$ & $90.96$ & $13.71$ & old & $65$ & $$-$.85$ & $$-$1.22$ \\ 
+102 & $8$ & $46.62$ & $6.25$ & $2.21$ & $30.17$ & $6.64$ & old & $73$ & $1.25$ & $$-$1.28$ \\ 
+103 & $8$ & $46.12$ & $5.17$ & $1.83$ & $56.27$ & $30.01$ & old & $71$ & $.27$ & $$-$1.51$ \\ 
+117 & $8$ & $45.38$ & $2.83$ & $1.00$ & $62.38$ & $14.98$ & old & $68$ & $$-$1.83$ & $$-$1.86$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table}
+
+\begin{table}[!htbp] \centering 
+  \caption{Score (m) and speed (sp) across groups} 
+  \label{mspgroups} 
+\tiny 
+\begin{tabular}{@{\extracolsep{5pt}} ccccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+age\_group & n & m & m.sc & sd & sd.sc & se & sp.m & age \\ 
+\hline \\[-1.8ex] 
+old & $32$ & $48.75$ & $$-$.30$ & $4.72$ & $$-$.13$ & $1.67$ & $61.40$ & $70.47$ \\ 
+young & $29$ & $50.10$ & $.33$ & $5.02$ & $.14$ & $1.78$ & $37.40$ & $24.31$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table}
+
+\newpage 
+
+\begin{table}[!htbp] \centering 
+  \caption{Score (m) and speed (sp) across 8 option blocks} 
+  \label{mspblocks} 
+\tiny 
+\begin{tabular}{@{\extracolsep{5pt}} ccccccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+id & n & m & sd & se & sp.m & sp.sd & age\_group & age & sd.sc & m.sc \\ 
+\hline \\[-1.8ex] 
+19 & $8$ & $49$ & $8.80$ & $3.11$ & $23.69$ & $3.05$ & young & $22$ & $2.11$ & $1.74$ \\ 
+17 & $8$ & $48.25$ & $5.06$ & $1.79$ & $45.93$ & $21.67$ & young & $29$ & $$-$.48$ & $1.56$ \\ 
+14 & $8$ & $47.12$ & $6.06$ & $2.14$ & $37.20$ & $32.14$ & young & $24$ & $.21$ & $1.28$ \\ 
+11 & $8$ & $47$ & $6.50$ & $2.30$ & $41.21$ & $10.76$ & young & $20$ & $.52$ & $1.24$ \\ 
+28 & $8$ & $47$ & $6.14$ & $2.17$ & $53.69$ & $18.50$ & young & $23$ & $.27$ & $1.24$ \\ 
+3 & $8$ & $46.88$ & $5.64$ & $1.99$ & $20.51$ & $9.98$ & young & $29$ & $$-$.08$ & $1.21$ \\ 
+5 & $8$ & $46.75$ & $4.65$ & $1.64$ & $25.46$ & $2.97$ & young & $30$ & $$-$.76$ & $1.18$ \\ 
+9 & $8$ & $46.62$ & $5.34$ & $1.89$ & $23.52$ & $5.86$ & young & $26$ & $$-$.29$ & $1.15$ \\ 
+6 & $8$ & $46.38$ & $7.82$ & $2.76$ & $38.69$ & $29.99$ & young & $19$ & $1.43$ & $1.09$ \\ 
+23 & $8$ & $45.38$ & $5.53$ & $1.95$ & $35.07$ & $8.45$ & young & $24$ & $$-$.16$ & $.84$ \\ 
+13 & $8$ & $45.12$ & $6.83$ & $2.42$ & $20.25$ & $8.04$ & young & $24$ & $.75$ & $.78$ \\ 
+27 & $8$ & $44.88$ & $6.13$ & $2.17$ & $21.24$ & $3.66$ & young & $27$ & $.26$ & $.71$ \\ 
+22 & $8$ & $44.62$ & $7.39$ & $2.61$ & $29.46$ & $18.49$ & young & $30$ & $1.13$ & $.65$ \\ 
+1 & $8$ & $44.12$ & $9.30$ & $3.29$ & $27.70$ & $12.21$ & young & $27$ & $2.45$ & $.53$ \\ 
+2 & $8$ & $44$ & $5.78$ & $2.04$ & $40.05$ & $12.09$ & young & $26$ & $.02$ & $.50$ \\ 
+25 & $8$ & $43.75$ & $6.32$ & $2.23$ & $106.01$ & $30.35$ & young & $22$ & $.39$ & $.43$ \\ 
+7 & $8$ & $43.62$ & $5.18$ & $1.83$ & $33.89$ & $4.03$ & young & $26$ & $$-$.40$ & $.40$ \\ 
+15 & $8$ & $43.25$ & $5.82$ & $2.06$ & $72.30$ & $18.28$ & young & $22$ & $.05$ & $.31$ \\ 
+16 & $8$ & $42.88$ & $5.62$ & $1.99$ & $67.07$ & $23.10$ & young & $25$ & $$-$.10$ & $.21$ \\ 
+24 & $8$ & $42.88$ & $5.79$ & $2.05$ & $46.79$ & $10.30$ & young & $23$ & $.03$ & $.21$ \\ 
+8 & $8$ & $42.25$ & $5.42$ & $1.92$ & $41.05$ & $39.53$ & young & $23$ & $$-$.23$ & $.06$ \\ 
+12 & $8$ & $41.25$ & $3.33$ & $1.18$ & $27.16$ & $12.69$ & young & $27$ & $$-$1.68$ & $$-$.19$ \\ 
+20 & $8$ & $41$ & $4.04$ & $1.43$ & $37.23$ & $29.10$ & young & $25$ & $$-$1.19$ & $$-$.25$ \\ 
+26 & $8$ & $39.75$ & $3.99$ & $1.41$ & $55.61$ & $22.90$ & young & $23$ & $$-$1.22$ & $$-$.57$ \\ 
+10 & $8$ & $39.25$ & $4.03$ & $1.42$ & $70.26$ & $27.45$ & young & $22$ & $$-$1.20$ & $$-$.69$ \\ 
+29 & $8$ & $37.75$ & $5.55$ & $1.96$ & $36.02$ & $11.71$ & young & $24$ & $$-$.14$ & $$-$1.06$ \\ 
+21 & $8$ & $37$ & $4.07$ & $1.44$ & $20.03$ & $4.35$ & young & $22$ & $$-$1.17$ & $$-$1.25$ \\ 
+18 & $8$ & $36.62$ & $5.88$ & $2.08$ & $60.30$ & $38.46$ & young & $20$ & $.08$ & $$-$1.35$ \\ 
+4 & $8$ & $36.12$ & $5.17$ & $1.83$ & $34.84$ & $31.10$ & young & $21$ & $$-$.41$ & $$-$1.47$ \\ 
+101 & $8$ & $47.25$ & $8.38$ & $2.96$ & $69.53$ & $45.68$ & old & $67$ & $1.82$ & $1.31$ \\ 
+126 & $8$ & $46.62$ & $6.14$ & $2.17$ & $32.94$ & $14.94$ & old & $73$ & $.27$ & $1.15$ \\ 
+131 & $8$ & $46.50$ & $5.90$ & $2.09$ & $22.16$ & $9.94$ & old & $67$ & $.10$ & $1.12$ \\ 
+105 & $8$ & $46.25$ & $6.39$ & $2.26$ & $40.88$ & $5.57$ & old & $71$ & $.44$ & $1.06$ \\ 
+104 & $8$ & $45.62$ & $7.46$ & $2.64$ & $201.58$ & $34.88$ & old & $70$ & $1.18$ & $.90$ \\ 
+124 & $8$ & $45.38$ & $6.59$ & $2.33$ & $159.14$ & $63.89$ & old & $70$ & $.58$ & $.84$ \\ 
+109 & $8$ & $45.12$ & $8.01$ & $2.83$ & $58.07$ & $7.88$ & old & $71$ & $1.56$ & $.78$ \\ 
+115 & $8$ & $45$ & $3.66$ & $1.30$ & $24.43$ & $1.69$ & old & $72$ & $$-$1.45$ & $.74$ \\ 
+111 & $8$ & $43.62$ & $5.24$ & $1.85$ & $78.99$ & $9.60$ & old & $73$ & $$-$.36$ & $.40$ \\ 
+121 & $8$ & $43.25$ & $6.58$ & $2.33$ & $34.07$ & $8.54$ & old & $73$ & $.57$ & $.31$ \\ 
+130 & $8$ & $42.38$ & $4.24$ & $1.50$ & $60.92$ & $46.59$ & old & $65$ & $$-$1.05$ & $.09$ \\ 
+102 & $8$ & $42.12$ & $6.15$ & $2.17$ & $49.61$ & $42.62$ & old & $73$ & $.27$ & $.03$ \\ 
+107 & $8$ & $42$ & $6.99$ & $2.47$ & $86.65$ & $18.52$ & old & $69$ & $.85$ & $$-$.004$ \\ 
+127 & $8$ & $41.38$ & $7.82$ & $2.76$ & $131.49$ & $30.43$ & old & $65$ & $1.43$ & $$-$.16$ \\ 
+106 & $8$ & $41.25$ & $6.67$ & $2.36$ & $63.09$ & $13.34$ & old & $73$ & $.63$ & $$-$.19$ \\ 
+108 & $8$ & $40.75$ & $8.48$ & $3.00$ & $63.05$ & $41.80$ & old & $73$ & $1.89$ & $$-$.32$ \\ 
+128 & $8$ & $40.38$ & $5.66$ & $2.00$ & $73.37$ & $17.43$ & old & $73$ & $$-$.07$ & $$-$.41$ \\ 
+113 & $8$ & $40.25$ & $6.54$ & $2.31$ & $57.27$ & $8.21$ & old & $72$ & $.54$ & $$-$.44$ \\ 
+123 & $8$ & $39.50$ & $5.63$ & $1.99$ & $71.27$ & $8.08$ & old & $74$ & $$-$.09$ & $$-$.63$ \\ 
+120 & $8$ & $39.38$ & $7.98$ & $2.82$ & $44.47$ & $32.72$ & old & $72$ & $1.54$ & $$-$.66$ \\ 
+118 & $8$ & $38.38$ & $6.21$ & $2.20$ & $76.11$ & $20.41$ & old & $71$ & $.31$ & $$-$.91$ \\ 
+116 & $8$ & $37.62$ & $5.01$ & $1.77$ & $53.76$ & $22.60$ & old & $71$ & $$-$.51$ & $$-$1.10$ \\ 
+122 & $8$ & $37.50$ & $4.78$ & $1.69$ & $63.57$ & $14.94$ & old & $69$ & $$-$.68$ & $$-$1.13$ \\ 
+125 & $8$ & $37.50$ & $4.69$ & $1.66$ & $49.62$ & $11.36$ & old & $69$ & $$-$.74$ & $$-$1.13$ \\ 
+129 & $8$ & $37.50$ & $4.57$ & $1.61$ & $38.78$ & $9.06$ & old & $73$ & $$-$.82$ & $$-$1.13$ \\ 
+110 & $8$ & $37.38$ & $5.60$ & $1.98$ & $25.19$ & $14.17$ & old & $71$ & $$-$.10$ & $$-$1.16$ \\ 
+112 & $8$ & $37$ & $4.28$ & $1.51$ & $73.75$ & $76.97$ & old & $68$ & $$-$1.02$ & $$-$1.25$ \\ 
+114 & $8$ & $36.12$ & $4.42$ & $1.56$ & $46.80$ & $25.87$ & old & $72$ & $$-$.92$ & $$-$1.47$ \\ 
+119 & $8$ & $36$ & $4.07$ & $1.44$ & $28.97$ & $15.15$ & old & $71$ & $$-$1.17$ & $$-$1.50$ \\ 
+117 & $8$ & $35.75$ & $3.06$ & $1.08$ & $60.75$ & $8.44$ & old & $68$ & $$-$1.87$ & $$-$1.56$ \\ 
+103 & $8$ & $34.12$ & $3.04$ & $1.08$ & $46.56$ & $13.42$ & old & $71$ & $$-$1.88$ & $$-$1.97$ \\ 
+132 & $8$ & $33.62$ & $3.70$ & $1.31$ & $111.76$ & $37.00$ & old & $65$ & $$-$1.42$ & $$-$2.09$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table}
+
+\begin{table}[!htbp] \centering 
+  \caption{Score (m) and speed (sp) across groups} 
+  \label{mspgroups} 
+\tiny 
+\begin{tabular}{@{\extracolsep{5pt}} ccccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+age\_group & n & m & m.sc & sd & sd.sc & se & sp.m & age \\ 
+\hline \\[-1.8ex] 
+old & $32$ & $40.70$ & $$-$.33$ & $5.75$ & $$-$.01$ & $2.03$ & $65.58$ & $70.47$ \\ 
+young & $29$ & $43.47$ & $.36$ & $5.76$ & $.01$ & $2.04$ & $41.11$ & $24.31$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table}
+
+\newpage
+
+\newpage
+
+\paragraph{Exploratory plots}\label{exploratory-plots}
+
+\includegraphics{exp1_files/figure-latex/unnamed-chunk-30-1.pdf}
+
+\cleardoublepage
+
+\paragraph{EV plots}\label{ev-plots}
+
+\includegraphics{exp1_files/figure-latex/unnamed-chunk-35-1.pdf}
+
+\newpage
+
+\newpage
+
+\paragraph{Regret}\label{regret}
+
+\subparagraph{Regret per trial}\label{regret-per-trial}
+
+\includegraphics{exp1_files/figure-latex/unnamed-chunk-38-1.pdf}
+
+\includegraphics{exp1_files/figure-latex/unnamed-chunk-39-1.pdf}
+
+\subparagraph{Regret per participant}\label{regret-per-participant}
+
+\begin{table}[!htbp] \centering 
+  \caption{Regret across 4 option blocks} 
+  \label{mspblocks} 
+\tiny 
+\begin{tabular}{@{\extracolsep{5pt}} cccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+id & n & m & sd & se & m.sc & sd.sc & age\_group \\ 
+\hline \\[-1.8ex] 
+18 & $8$ & $11.29$ & $.89$ & $.32$ & $1.40$ & $$-$1.56$ & young \\ 
+21 & $8$ & $11.02$ & $1.43$ & $.51$ & $1.25$ & $$-$1.10$ & young \\ 
+4 & $8$ & $10.88$ & $1.77$ & $.63$ & $1.18$ & $$-$.80$ & young \\ 
+24 & $8$ & $10.75$ & $5.02$ & $1.77$ & $1.11$ & $1.97$ & young \\ 
+29 & $8$ & $10.69$ & $1.54$ & $.54$ & $1.07$ & $$-$1.01$ & young \\ 
+26 & $8$ & $10.53$ & $1.15$ & $.41$ & $.99$ & $$-$1.34$ & young \\ 
+12 & $8$ & $9.43$ & $4.08$ & $1.44$ & $.40$ & $1.17$ & young \\ 
+6 & $8$ & $9.37$ & $5.35$ & $1.89$ & $.37$ & $2.26$ & young \\ 
+1 & $8$ & $9.01$ & $2.16$ & $.76$ & $.17$ & $$-$.48$ & young \\ 
+16 & $8$ & $8.86$ & $2.04$ & $.72$ & $.09$ & $$-$.58$ & young \\ 
+15 & $8$ & $8.73$ & $2.16$ & $.76$ & $.02$ & $$-$.48$ & young \\ 
+23 & $8$ & $8.68$ & $2.62$ & $.93$ & $$-$.01$ & $$-$.08$ & young \\ 
+7 & $8$ & $8.40$ & $2.42$ & $.86$ & $$-$.16$ & $$-$.25$ & young \\ 
+10 & $8$ & $7.98$ & $3.10$ & $1.09$ & $$-$.39$ & $.33$ & young \\ 
+27 & $8$ & $7.87$ & $2.17$ & $.77$ & $$-$.44$ & $$-$.46$ & young \\ 
+20 & $8$ & $7.87$ & $1.76$ & $.62$ & $$-$.44$ & $$-$.81$ & young \\ 
+25 & $8$ & $7.74$ & $3.06$ & $1.08$ & $$-$.51$ & $.29$ & young \\ 
+2 & $8$ & $7.47$ & $2.79$ & $.99$ & $$-$.66$ & $.07$ & young \\ 
+5 & $8$ & $7.39$ & $3.96$ & $1.40$ & $$-$.70$ & $1.07$ & young \\ 
+17 & $8$ & $7.19$ & $3.52$ & $1.24$ & $$-$.81$ & $.69$ & young \\ 
+3 & $8$ & $7.03$ & $3.89$ & $1.37$ & $$-$.90$ & $1.01$ & young \\ 
+9 & $8$ & $6.94$ & $2.68$ & $.95$ & $$-$.95$ & $$-$.03$ & young \\ 
+19 & $8$ & $6.78$ & $1.98$ & $.70$ & $$-$1.03$ & $$-$.62$ & young \\ 
+22 & $8$ & $6.75$ & $3.66$ & $1.29$ & $$-$1.05$ & $.81$ & young \\ 
+13 & $8$ & $6.58$ & $3.62$ & $1.28$ & $$-$1.14$ & $.77$ & young \\ 
+14 & $8$ & $5.72$ & $3.76$ & $1.33$ & $$-$1.60$ & $.89$ & young \\ 
+11 & $8$ & $5.65$ & $3.55$ & $1.26$ & $$-$1.64$ & $.72$ & young \\ 
+28 & $8$ & $5.43$ & $3.59$ & $1.27$ & $$-$1.76$ & $.75$ & young \\ 
+8 & $8$ & $5.02$ & $4.36$ & $1.54$ & $$-$1.98$ & $1.41$ & young \\ 
+132 & $8$ & $11.67$ & $.64$ & $.23$ & $1.61$ & $$-$1.78$ & old \\ 
+103 & $8$ & $11.65$ & $1.83$ & $.65$ & $1.60$ & $$-$.75$ & old \\ 
+117 & $8$ & $11.56$ & $1.29$ & $.46$ & $1.54$ & $$-$1.22$ & old \\ 
+122 & $8$ & $11.42$ & $.96$ & $.34$ & $1.47$ & $$-$1.50$ & old \\ 
+118 & $8$ & $11.01$ & $1.74$ & $.61$ & $1.25$ & $$-$.83$ & old \\ 
+112 & $8$ & $10.99$ & $1.08$ & $.38$ & $1.24$ & $$-$1.40$ & old \\ 
+128 & $8$ & $10.91$ & $1.91$ & $.68$ & $1.20$ & $$-$.69$ & old \\ 
+116 & $8$ & $10.58$ & $1.96$ & $.69$ & $1.02$ & $$-$.65$ & old \\ 
+129 & $8$ & $10.58$ & $1.60$ & $.57$ & $1.02$ & $$-$.95$ & old \\ 
+125 & $8$ & $10.52$ & $1.58$ & $.56$ & $.98$ & $$-$.97$ & old \\ 
+113 & $8$ & $10.51$ & $2.60$ & $.92$ & $.98$ & $$-$.10$ & old \\ 
+119 & $8$ & $10.39$ & $2.02$ & $.71$ & $.91$ & $$-$.60$ & old \\ 
+114 & $8$ & $9.63$ & $3.18$ & $1.12$ & $.50$ & $.40$ & old \\ 
+123 & $8$ & $9.36$ & $.53$ & $.19$ & $.36$ & $$-$1.87$ & old \\ 
+120 & $8$ & $9.35$ & $2.11$ & $.75$ & $.35$ & $$-$.52$ & old \\ 
+126 & $8$ & $9.35$ & $5.56$ & $1.97$ & $.35$ & $2.44$ & old \\ 
+102 & $8$ & $9.10$ & $3.84$ & $1.36$ & $.22$ & $.96$ & old \\ 
+107 & $8$ & $9.08$ & $1.72$ & $.61$ & $.21$ & $$-$.85$ & old \\ 
+111 & $8$ & $8.90$ & $1.78$ & $.63$ & $.11$ & $$-$.80$ & old \\ 
+104 & $8$ & $8.83$ & $3.18$ & $1.13$ & $.07$ & $.40$ & old \\ 
+110 & $8$ & $8.82$ & $2.19$ & $.78$ & $.07$ & $$-$.44$ & old \\ 
+108 & $8$ & $8.82$ & $3.99$ & $1.41$ & $.07$ & $1.09$ & old \\ 
+127 & $8$ & $8.56$ & $3.05$ & $1.08$ & $$-$.07$ & $.29$ & old \\ 
+131 & $8$ & $7.91$ & $4.24$ & $1.50$ & $$-$.42$ & $1.31$ & old \\ 
+121 & $8$ & $7.60$ & $3.67$ & $1.30$ & $$-$.59$ & $.82$ & old \\ 
+106 & $8$ & $7.51$ & $2.27$ & $.80$ & $$-$.64$ & $$-$.38$ & old \\ 
+101 & $8$ & $7.43$ & $3.81$ & $1.35$ & $$-$.68$ & $.94$ & old \\ 
+115 & $8$ & $7.06$ & $3.09$ & $1.09$ & $$-$.88$ & $.33$ & old \\ 
+105 & $8$ & $6.96$ & $3.67$ & $1.30$ & $$-$.94$ & $.82$ & old \\ 
+109 & $8$ & $6.55$ & $3.67$ & $1.30$ & $$-$1.15$ & $.82$ & old \\ 
+124 & $8$ & $6.50$ & $3.41$ & $1.21$ & $$-$1.18$ & $.60$ & old \\ 
+130 & $8$ & $4.15$ & $3.24$ & $1.15$ & $$-$2.45$ & $.45$ & old \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table}
+
+\begin{table}[!htbp] \centering 
+  \caption{Score (m) and speed (sp) across groups} 
+  \label{mspgroups} 
+\tiny 
+\begin{tabular}{@{\extracolsep{5pt}} ccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+age\_group & n & m & m.sc & sd & sd.sc & se \\ 
+\hline \\[-1.8ex] 
+old & $32$ & $9.16$ & $.25$ & $2.54$ & $$-$.14$ & $.90$ \\ 
+young & $29$ & $8.17$ & $$-$.28$ & $2.90$ & $.16$ & $1.03$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table}
+
+\begin{table}[!htbp] \centering 
+  \caption{Regret across 8 option blocks} 
+  \label{mspblocks} 
+\tiny 
+\begin{tabular}{@{\extracolsep{5pt}} ccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+id & n & m & sd & se & sd.sc & age\_group \\ 
+\hline \\[-1.8ex] 
+29 & $8$ & $25.33$ & $2.08$ & $.73$ & $$-$1.07$ & young \\ 
+4 & $8$ & $24.56$ & $3.05$ & $1.08$ & $$-$.52$ & young \\ 
+21 & $8$ & $24.43$ & $1.61$ & $.57$ & $$-$1.34$ & young \\ 
+18 & $8$ & $23.29$ & $2.53$ & $.89$ & $$-$.81$ & young \\ 
+26 & $8$ & $21.10$ & $2.80$ & $.99$ & $$-$.66$ & young \\ 
+10 & $8$ & $20.95$ & $3.71$ & $1.31$ & $$-$.14$ & young \\ 
+1 & $8$ & $18.38$ & $5.41$ & $1.91$ & $.83$ & young \\ 
+12 & $8$ & $18.22$ & $4.01$ & $1.42$ & $.03$ & young \\ 
+20 & $8$ & $18.09$ & $3.25$ & $1.15$ & $$-$.40$ & young \\ 
+15 & $8$ & $18.05$ & $2.34$ & $.83$ & $$-$.92$ & young \\ 
+16 & $8$ & $17.80$ & $1.89$ & $.67$ & $$-$1.18$ & young \\ 
+8 & $8$ & $16.99$ & $3.22$ & $1.14$ & $$-$.42$ & young \\ 
+7 & $8$ & $16.72$ & $2.97$ & $1.05$ & $$-$.56$ & young \\ 
+23 & $8$ & $16.58$ & $2.84$ & $1.01$ & $$-$.63$ & young \\ 
+2 & $8$ & $16.57$ & $3.09$ & $1.09$ & $$-$.49$ & young \\ 
+24 & $8$ & $16.39$ & $3.69$ & $1.30$ & $$-$.15$ & young \\ 
+27 & $8$ & $16.07$ & $3.11$ & $1.10$ & $$-$.48$ & young \\ 
+22 & $8$ & $15.68$ & $4.46$ & $1.58$ & $.29$ & young \\ 
+25 & $8$ & $15.19$ & $5.52$ & $1.95$ & $.89$ & young \\ 
+9 & $8$ & $14.45$ & $2.04$ & $.72$ & $$-$1.09$ & young \\ 
+3 & $8$ & $13.92$ & $4.00$ & $1.41$ & $.03$ & young \\ 
+13 & $8$ & $13.87$ & $6.99$ & $2.47$ & $1.73$ & young \\ 
+5 & $8$ & $13.39$ & $4.53$ & $1.60$ & $.33$ & young \\ 
+6 & $8$ & $12.94$ & $7.20$ & $2.55$ & $1.85$ & young \\ 
+11 & $8$ & $12.23$ & $4.09$ & $1.44$ & $.07$ & young \\ 
+17 & $8$ & $12.10$ & $5.31$ & $1.88$ & $.77$ & young \\ 
+28 & $8$ & $12.09$ & $4.04$ & $1.43$ & $.05$ & young \\ 
+14 & $8$ & $11.60$ & $5.84$ & $2.06$ & $1.07$ & young \\ 
+19 & $8$ & $11.48$ & $6.01$ & $2.12$ & $1.17$ & young \\ 
+103 & $8$ & $27.76$ & $1.81$ & $.64$ & $$-$1.23$ & old \\ 
+132 & $8$ & $27.75$ & $1.95$ & $.69$ & $$-$1.15$ & old \\ 
+117 & $8$ & $25.64$ & $1.29$ & $.45$ & $$-$1.52$ & old \\ 
+119 & $8$ & $25.44$ & $3.32$ & $1.17$ & $$-$.36$ & old \\ 
+129 & $8$ & $25.11$ & $2.32$ & $.82$ & $$-$.93$ & old \\ 
+112 & $8$ & $24.43$ & $1.12$ & $.39$ & $$-$1.62$ & old \\ 
+114 & $8$ & $24.19$ & $2.07$ & $.73$ & $$-$1.07$ & old \\ 
+122 & $8$ & $24.18$ & $3.49$ & $1.23$ & $$-$.26$ & old \\ 
+110 & $8$ & $23.80$ & $4.22$ & $1.49$ & $.15$ & old \\ 
+125 & $8$ & $22.76$ & $.93$ & $.33$ & $$-$1.73$ & old \\ 
+116 & $8$ & $22.57$ & $2.80$ & $.99$ & $$-$.66$ & old \\ 
+118 & $8$ & $22.17$ & $2.73$ & $.97$ & $$-$.70$ & old \\ 
+113 & $8$ & $21.87$ & $5.56$ & $1.97$ & $.92$ & old \\ 
+123 & $8$ & $21.56$ & $2.63$ & $.93$ & $$-$.75$ & old \\ 
+127 & $8$ & $19.62$ & $5.45$ & $1.93$ & $.86$ & old \\ 
+120 & $8$ & $19.27$ & $6.95$ & $2.46$ & $1.71$ & old \\ 
+128 & $8$ & $19.26$ & $5.35$ & $1.89$ & $.80$ & old \\ 
+107 & $8$ & $19.09$ & $5.53$ & $1.95$ & $.90$ & old \\ 
+102 & $8$ & $18.71$ & $5.07$ & $1.79$ & $.64$ & old \\ 
+106 & $8$ & $18.18$ & $4.08$ & $1.44$ & $.07$ & old \\ 
+130 & $8$ & $17.53$ & $6.14$ & $2.17$ & $1.25$ & old \\ 
+108 & $8$ & $17.50$ & $9.18$ & $3.24$ & $2.98$ & old \\ 
+111 & $8$ & $17.11$ & $3.15$ & $1.12$ & $$-$.46$ & old \\ 
+121 & $8$ & $17.06$ & $3.45$ & $1.22$ & $$-$.29$ & old \\ 
+104 & $8$ & $15.44$ & $4.62$ & $1.63$ & $.38$ & old \\ 
+109 & $8$ & $15.26$ & $7.18$ & $2.54$ & $1.84$ & old \\ 
+115 & $8$ & $14.92$ & $3.77$ & $1.33$ & $$-$.11$ & old \\ 
+131 & $8$ & $14.73$ & $2.71$ & $.96$ & $$-$.71$ & old \\ 
+105 & $8$ & $14.20$ & $4.11$ & $1.45$ & $.09$ & old \\ 
+124 & $8$ & $14.18$ & $4.54$ & $1.61$ & $.33$ & old \\ 
+101 & $8$ & $13.18$ & $4.85$ & $1.72$ & $.51$ & old \\ 
+126 & $8$ & $11.23$ & $7.22$ & $2.55$ & $1.87$ & old \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table}
+
+\begin{table}[!htbp] \centering 
+  \caption{Score (m) and speed (sp) across groups} 
+  \label{mspgroups} 
+\tiny 
+\begin{tabular}{@{\extracolsep{5pt}} cccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+age\_group & n & m & sd & sd.sc & se \\ 
+\hline \\[-1.8ex] 
+old & $32$ & $19.87$ & $4.05$ & $.05$ & $1.43$ \\ 
+young & $29$ & $16.84$ & $3.85$ & $$-$.06$ & $1.36$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table}
+
+\newpage 
+
+\newpage
+
+\subsubsection{Optimality models}\label{optimality-models}
+
+\newpage
+
+\paragraph{Visual model comparison}\label{visual-model-comparison}
+
+\includegraphics{exp1_files/figure-latex/unnamed-chunk-50-1.pdf}
+
+\newpage
+
+\paragraph{Model fits per trial}\label{model-fits-per-trial}
+
+\subparagraph{4 options}\label{options}
+
+\subparagraph{YA}\label{ya}
+
+\includegraphics{exp1_files/figure-latex/unnamed-chunk-72-1.pdf}
+
+\newpage
+
+\subparagraph{same options}\label{same-options}
+
+\subparagraph{OA}\label{oa}
+
+\includegraphics{exp1_files/figure-latex/unnamed-chunk-75-1.pdf}
+
+\newpage
+
+\subparagraph{Both}\label{both}
+
+\includegraphics{exp1_files/figure-latex/unnamed-chunk-77-1.pdf}
+
+\newpage 
+
+\subparagraph{8 options}\label{options-1}
+
+\subparagraph{YA}\label{ya-1}
+
+\includegraphics{exp1_files/figure-latex/unnamed-chunk-89-1.pdf}
+
+\newpage
+
+\subparagraph{same options}\label{same-options-1}
+
+\subparagraph{OA}\label{oa-1}
+
+\includegraphics{exp1_files/figure-latex/unnamed-chunk-92-1.pdf}
+
+\newpage
+
+\subparagraph{Both}\label{both-1}
+
+\includegraphics{exp1_files/figure-latex/unnamed-chunk-94-1.pdf}
+
+\newpage
+
+\newpage
+
+\section{Acknowledgements}\label{acknowledgements}
+
+The manuscript has been automatically generated with
+\href{http://r-project.org/}{R} using
+\href{http://daringfireball.net/projects/markdown/}{Markdown} (for word
+processing), \href{http://yihui.name/knitr/}{\texttt{knitr}} (for
+putting evaluated r code into markdown),
+\href{http://johnmacfarlane.net/pandoc/}{\texttt{pandoc}} (for
+converting to latex, html, and docx), and
+\href{http://miktex.org/}{MiKTeX} (for converting latex to pdf).
+
+\newpage
+
+\section{Session info}\label{session-info}
+
+R version 3.3.2 (2016-10-31) Platform: x86\_64-w64-mingw32/x64 (64-bit)
+Running under: Windows 10 x64 (build 14393)
+
+locale: {[}1{]} LC\_COLLATE=English\_United States.1252 {[}2{]}
+LC\_CTYPE=English\_United States.1252\\
+{[}3{]} LC\_MONETARY=English\_United States.1252 {[}4{]} LC\_NUMERIC=C\\
+{[}5{]} LC\_TIME=English\_United States.1252
+
+attached base packages: {[}1{]} grid stats graphics grDevices utils
+datasets methods\\
+{[}8{]} base
+
+other attached packages: {[}1{]} combinat\_0.0-8 png\_0.1-7 psych\_1.6.9
+stargazer\_5.2\\
+{[}5{]} tidyr\_0.6.0 dplyr\_0.5.0 plyr\_1.8.4 ggplot2\_2.2.0\\
+{[}9{]} effects\_3.1-2 lattice\_0.20-34 knitr\_1.15
+
+loaded via a namespace (and not attached): {[}1{]} Rcpp\_0.12.7
+nloptr\_1.0.4 tools\_3.3.2 digest\_0.6.10\\
+{[}5{]} lme4\_1.1-12 evaluate\_0.10 tibble\_1.2 gtable\_0.2.0\\
+{[}9{]} nlme\_3.1-128 Matrix\_1.2-7.1 DBI\_0.5-1 yaml\_2.1.14\\
+{[}13{]} parallel\_3.3.2 stringr\_1.1.0 nnet\_7.3-12 R6\_2.2.0\\
+{[}17{]} foreign\_0.8-67 rmarkdown\_1.1 minqa\_1.2.4 reshape2\_1.4.2\\
+{[}21{]} magrittr\_1.5 scales\_0.4.1 codetools\_0.2-15 htmltools\_0.3.5
+{[}25{]} MASS\_7.3-45 splines\_3.3.2 assertthat\_0.1 mnormt\_1.5-5\\
+{[}29{]} colorspace\_1.3-0 labeling\_0.3 stringi\_1.1.2
+lazyeval\_0.2.0\\
+{[}33{]} munsell\_0.4.3
+
+
+\end{document}

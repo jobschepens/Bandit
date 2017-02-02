@@ -1,0 +1,94 @@
+```{r}
+getvars = function(out) {
+  w = NULL 
+#   out = ouy
+  w$bayesian_bandit_choice = out$trial_number
+  w$bandits = out$bandit_id #.4-.6
+  w$ev = out$ev #.4-.6
+  w$Choices = 0
+  w$Choices[w$ev == .6] = 4
+  w$Choices[w$ev == .525] = 3
+  w$Choices[w$ev == .450] = 2
+  w$Choices[w$ev == .375] = 1
+  w$id = out$id
+  w$block_id = out$block_id #unique(w$Gamenr)
+  w$int = interaction(w$id, w$block_id) #unique(w$Gamenr)
+  w <- as.data.frame(w)
+  aap = as.data.frame(unique(interaction(w$id, w$block_id)))
+  aap$Gamenr <- row.names(aap)
+  colnames(aap)[1] <- "int"
+  w <- merge(w, aap, by.x = "int", by.y = "int", sort = F)
+  w$Score = out$payoff
+  w$Trials = out$trial_number + 1
+  w$Gamenr <- as.integer(w$Gamenr)
+  summary(w)
+  w <- w[,c(2, 5, 8, 9, 10)]
+  w
+}
+```
+
+```{r}
+getvars8 = function(out) {
+  w = NULL 
+  w$bayesian_bandit_choice = out$trial_number
+  w$bandits = out$bandit_id #.4-.6
+  w$ev = out$ev #.4-.6
+  w$Choices = 0
+  w$Choices[w$ev == .6] = 8
+  w$Choices[w$ev == .525] = 7
+  w$Choices[w$ev == .450] = 6
+  w$Choices[w$ev == .375] = 5
+  w$Choices[w$ev == .3] = 4
+  w$Choices[w$ev == .225] = 3
+  w$Choices[w$ev == .15] = 2
+  w$Choices[w$ev == .075] = 1
+  w$id = out$id
+  w$block_id = out$block_id #unique(w$Gamenr)
+  w$int = interaction(w$id, w$block_id) #unique(w$Gamenr)
+  w <- as.data.frame(w)
+  aap = as.data.frame(unique(interaction(w$id, w$block_id)))
+  aap$Gamenr <- row.names(aap)
+  colnames(aap)[1] <- "int"
+  w <- merge(w, aap, by.x = "int", by.y = "int", sort = F)
+  w$Score = out$payoff
+  w$Trials = out$trial_number + 1
+  w <- w[,c(2, 5, 8, 9, 10)]
+  w
+}
+```
+
+
+```{r}
+# load("stats2.RData")
+load("stats2selected.RData")
+length(unique(stats2$id))
+length(unique(stats2$id[stats2$age_group == "young"]))
+length(unique(stats2$id[stats2$age_group == "old"]))
+summary(stats2)
+w = NULL
+
+ou = stats2[stats2$block_size == 4,]
+ouy = ou[ou$age_group == "young",] 
+w = getvars(ouy)
+write.table(w, file = "wyoung4.csv", sep = ",", quote = FALSE, row.names = FALSE)
+
+ouo = ou[ou$age_group == "old",] 
+w = getvars(ouo)
+write.table(w, file = "wold4.csv", sep = ",", quote = FALSE, row.names = FALSE)
+
+oa = stats2[stats2$block_size == 8,]
+oay = oa[oa$age_group == "young",] 
+w = getvars8(oay)
+write.table(w, file = "wyoung8.csv", sep = ",", quote = FALSE, row.names = FALSE)
+
+oao = oa[oa$age_group == "old",] 
+w = getvars8(oao)
+write.table(w, file = "wold8.csv", sep = ",", quote = FALSE, row.names = FALSE)
+
+# bayesian_bandit_choice = trialnr
+# Choices = chocie
+# Gamenr = id*block
+# Score = rewardpay
+# Trials = trialnr
+# 0,1.0,1.0,0.0,1.0
+```

@@ -1,0 +1,166 @@
+```{r}
+softmax <- function(Q, theta) {
+	e = exp(Q / theta)
+	# e = exp(theta * Q)
+	# e = exp(((3^theta)-1) * Q)
+	# e = exp((((trial + 1)/100)^theta) * Q)
+	probs = e / sum(e)
+	probs
+}
+getScheme <- function(game, N_BANDITS, basescheme) {
+	oc        <- match(unique(game$bandit_real_id), game$bandit_real_id) # trial numbers of first time choice for each bandit
+	newscheme <- as.data.frame(cbind(game$ev[oc],   game$bandit_real_id[oc]))
+	scheme    <- merge(basescheme, newscheme, by.x = "ev", by.y = "V1", all.x = T)
+	scheme    <- scheme[order(scheme[,1], decreasing = FALSE),]
+	scheme$evorder <- 1:N_BANDITS
+	scheme    <- scheme[order(scheme[,2], decreasing = FALSE),]
+	scheme$V2[is.na(scheme$V2)] <- c(1:N_BANDITS)[(scheme$V2 %in% 1:N_BANDITS) == F]
+	return(scheme)
+}
+getProbs <- function (wins, bantrials, theta, lik = 0) {
+	a 	   <- 1 + wins
+	b      <- 1 + bantrials - wins
+	xpoints 	<- matrix(data = 0, nrow = MAX_CHOICESB-1, ncol = N_BANDITS)
+	probability <- seq(from = 0 + (1/MAX_CHOICESB), to = (1-1/MAX_CHOICESB), by = 1/MAX_CHOICESB)
+	for (bandit in 1:N_BANDITS) {
+		xpoints[,bandit] <- qbeta(probability, a[bandit], b[bandit])
+	}
+	choices = matrix(data = 0, nrow = N_BANDITS, ncol = 1) 
+	for (row in 1:(MAX_CHOICESB-1)) {
+		idx          <- which(xpoints[row,] == max(xpoints[row,], na.rm = TRUE))
+		choices[idx] <- choices[idx] + 1
+	}
+	p = choices / (MAX_CHOICESB-1)
+	probs <- softmax(p, theta)
+	
+	# probs <- c(.25, .25, .25, NA)
+	# probs <- c(.25, .25, .25, .0001)
+	# probs <- c(.25, .25, .25, .25)
+	if (sum(is.nan(probs)) > 0 | sum(is.na(probs)) > 0) { 
+		# print("aap")
+		print(cat("lik:", lik, "alpha:", alpha, "theta:", theta, "tr:", trial,
+				  "QQ:",    round(Q       , digits = 2),
+				  "probs:", round(t(probs), digits = 2),
+				  " wins: ", wins, " trials: ", bantrials, "click: ", choice,
+				  collapse = " "))
+		## throw error
+	}
+	probs[is.nan(probs)]            <- 1 / MIN_GRAIN
+	probs[is.na(probs)]             <- 1 / MIN_GRAIN 
+	probs[probs <= (1 / MIN_GRAIN)] <- 1 / MIN_GRAIN
+	# probs[probs >= .999]            <- 1
+	probs
+}
+```
+
+
+
+```{r}
+subjects = unique(data$id)
+
+# data <- data[data$id %in% subjects[1], ]
+# data <- data[data$id %in% c(5), ]
+source("bbanditsfunc.R") 
+
+BB.LB = c(0.005) # theta
+BB.UB = c(30)    # theta
+
+MAXITERBB = 1
+WHLEBB = 10 # should be 10 or so
+MAX_CHOICESB = 100 # should be 100
+MIN_GRAIN = 1000
+INITQ = 0
+basescheme = as.data.frame(sort(unique(data$ev))); colnames(basescheme)[1] <- "ev"
+subjects = unique(data$id)
+```
+
+
+```{r, eval=F}
+print(length(unique(subjects)))
+
+FBB2 <- matrix(data = 0, nrow = length(unique(subjects)), ncol = 6)
+FBB2[,6] = subjects
+
+for (id in 1:length(unique(subjects))) {  
+	print(paste("id  ", id))
+	subdata <- data[data$id == unique(subjects)[id],]
+	bb.lik <- matrix(data = NA, nrow = 8, ncol = MAXITERBB) 
+	bb.tht <- matrix(data = NA, nrow = 8, ncol = MAXITERBB) 
+	for (games in 1:length(unique(data$block_id[data$id == unique(subjects)[id]]))) {
+		print(paste("game", games))
+		gamedata = subdata[subdata$block_id == unique(subdata$block_id)[games],]
+		
+		if (MAXITERBB > 0 ) {
+			for (iter in 1:MAXITERBB) {
+				# startParm <- c(FBB1[id, 3])
+				startParm <- runif(length(BB.LB)) * (BB.UB - BB.LB) + BB.LB 
+				names(startParm) <- c("theta")
+				# if(is.na(startParm)[1]) {startParm <- c(1)}
+				out <- optim(startParm, bbanditsfunc, game = gamedata, N_BANDITS = N_BANDITS, 
+							 method = "L-BFGS-B", lower = c(0.005), upper = c(30))
+				whle = 0
+				while (out$value == 0 & whle < WHLEBB) {
+					startParm <- runif(length(BB.LB)) * (1 - BB.LB) + BB.LB # subst BB.UB with 1 to focus less on randomness
+					names(startParm) <- c("theta")
+					# if(is.na(startParm)[1]) {startParm <- c(1)}
+					out <- optim(startParm, bbanditsfunc, game = gamedata, N_BANDITS = N_BANDITS, 
+							 method = "L-BFGS-B", lower = BB.LB, upper = BB.UB)
+					whle = whle + 1
+					# print(paste("whle", whle, "tht", round(startParm, digits = 1)))
+				}
+				if(out$value == 0 | out$value > 300) {
+					out$value = NA
+					print(paste("OUt VALUE IS IMPOSSIBLE", id, games, sep = " "))
+				}
+				print(paste("BB ", round(out$value, digits = 1), round(out$par[1], digits = 1)))
+				bb.lik[games,iter] <- out$value
+				bb.tht[games,iter] <- out$par[1]
+			}
+		}
+	}
+	if (MAXITERBB > 0 ) {
+		FBB2[id,1] <- median(apply(bb.lik,1,min), na.rm = T)
+		FBB2[id,2] <- median(apply(bb.tht,1,min), na.rm = T)
+		FBB2[id,3] <- median(apply(bb.tht,1,min), na.rm = T)
+	}
+}
+
+FBB2[,4] <- 2 * FBB2[,1] + 2 * log(100) # BIC: deviance + #parameters * log(N)
+FBB2[,5] <- 2 * FBB2[,1] + 2 * 2        # AIC: deviance + #parameters * 2
+
+FBB2
+
+subjects = unique(FBB2[,6])
+
+PRBB <- array(data = NA, dim = c(length(subjects)*8, 100, 2*N_BANDITS)) # 3D array subjects, trials, 8 (q values per trial and choices)
+
+for (id in 1:length(unique(subjects))){
+	thetaBB <- FBB2[id,2];
+	subdata = data[data$id == unique(subjects)[id],]
+	for (games in 1:length(unique(data$block_id[data$id == unique(subjects)[id]]))) {
+		gamedata = subdata[subdata$block_id == unique(subdata$block_id)[games],]
+		scheme <- getScheme(gamedata, N_BANDITS, basescheme) 
+		bantrials <- matrix(data = 0, nrow = 1, ncol = N_BANDITS) 
+		wins      <- matrix(data = 0, nrow = 1, ncol = N_BANDITS) 
+
+		for (trial in c(0:99)) {
+			choice <- gamedata$bandit_real_id[gamedata$trial_number == trial]
+			R      <- gamedata$payoff        [gamedata$trial_number == trial]
+			ev     <- gamedata$ev            [gamedata$trial_number == trial]
+			
+			# BB
+			probs <- getProbs(wins, bantrials, thetaBB)
+			orderedprobs = probs[order(scheme$evorder, decreasing = FALSE)]
+			ind <- which(sort(unique(gamedata$ev)) == ev)
+			PRBB[(id - 1) * 8 + games, trial + 1, 1:N_BANDITS] <- orderedprobs
+			PRBB[(id - 1) * 8 + games, trial + 1, N_BANDITS + ind] <- 1
+			wins     [choice] <- wins     [choice] + R
+			bantrials[choice] <- bantrials[choice] + 1
+		}
+	}
+}  
+
+print(colMeans(PRBB, dims = 1, na.rm = T))
+
+save('FBB2', 'PRBB', file=paste("BB",filename, sep = ""))
+```

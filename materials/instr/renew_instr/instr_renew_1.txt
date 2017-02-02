@@ -1,0 +1,2 @@
+Gut. Sie brauchen jetzt weniger auf der Tastatur zu drucken. Das spiel nehmt jetzt automatisch Ihr Wahl aus der letzte Runde, aber nur wenn sie nicht auf ein Taste drücken. Sie können pausieren mit "Leerzeichen".
+

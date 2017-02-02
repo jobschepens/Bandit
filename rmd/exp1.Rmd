@@ -1,0 +1,158 @@
+---
+title: 'Online material for: "Aging of the Exploring Mind: Older Adults Deviate more from Optimality in Complex Choice Environments"'
+author: Job J. Schepens
+date: "`r format(Sys.time(), '%d %B %Y')`"
+graphics: yes
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 6
+    highlight: haddock
+    fig_caption: yes
+    fig_height: 4.2
+    fig_width: 6.8
+    keep_tex: yes
+    latex_engine: xelatex
+    includes:
+      in_header: ../docfiles/mystyle.tex
+      after_body: ../docfiles/after_body.tex
+  word_document: default
+  html_document:
+    theme: spacelab
+    keep_md: true
+    toc: yes
+    highlight: haddock
+csl: ../docfiles/nature.csl
+bibliography: ../docfiles/arc.bib
+documentclass: article
+geometry: margin=1.5in
+lang: eng
+---
+
+```{r, message=FALSE, results='hide', include=FALSE, echo=F, cache=F, fig.height=5, fig.width=5, dev=c('pdf', 'tiff'), dev.args=list(pdf = list(colormodel = 'cmyk'), tiff = list(compression = 'lzw'))}
+# rmarkdown::render("feedback-dynamic.Rmd", "pdf_document", clean = FALSE)
+var = 'C:/Users/schepens/Google Drive' # fu
+const = '/ownCloud/Experiments/feedback and dynamic/github/Bandits'
+base = paste(var, const, sep='')
+wd = paste(base, "/rmd", sep='')
+dataloc = "/finaldata"
+setwd(wd)
+
+# rm(list=ls())
+# options(width=60, width.cutoff=60)
+# install.packages("corrplot")
+library(knitr)
+library(lattice)
+library(effects)
+library(ggplot2)
+library(plyr)
+library(dplyr)
+library(tidyr)
+library(stargazer)
+library(psych)
+library(png)
+library(combinat)
+knitr::opts_chunk$set(results='show', cache=T, autodep=T, warning=F, message=F, prompt=F, eval=T, dpi=300, echo=F)
+theme_set(theme_bw())
+```
+
+```{r}
+# ex = "ex"
+pointsize = 7
+cm_width = 1 * 8.3   # max width for 1 column figures
+cm_width = 1 * 13
+golden_ratio = (1 + sqrt(5)) / 2
+golden_ratio = 1
+square = 1.3
+square = .6
+cm_height = square * cm_width / golden_ratio
+cm_to_inch = 2.54
+inch_width = cm_width/cm_to_inch
+inch_height = cm_height/cm_to_inch
+# inch_height
+```
+
+
+\newpage
+
+
+### Behavorial analysis
+
+```{r}
+dataloc = "/finaldata"
+```
+
+```{r child = 'exp1-finaldata.Rmd'}
+```
+
+\newpage
+
+
+```{r child = 'exp1-finaldata-expplots.Rmd'}
+```
+
+\cleardoublepage
+
+
+```{r child = 'exp1-finaldata-evplots.Rmd'}
+```
+
+\newpage
+
+
+```{r child = 'exp1-finaldata-regret.Rmd'}
+```
+
+\newpage
+
+
+
+
+### Optimality models
+
+```{r}
+file4 = "../processed/out4.csv"
+file8 = "../processed/out8.csv"
+
+AGE_GROUP = 99
+
+simul = F
+```
+
+\newpage
+
+
+```{r child = 'exp1-viscomp.Rmd'}
+```
+
+\newpage
+
+```{r child = 'exp1-finaldata-fit.Rmd'}
+```
+
+\newpage
+
+
+# Acknowledgements
+
+The manuscript has been automatically generated with 
+[R](http://r-project.org/)
+using 
+[Markdown](http://daringfireball.net/projects/markdown/) (for word processing), 
+[`knitr`](http://yihui.name/knitr/) (for putting evaluated r code into markdown), 
+[`pandoc`](http://johnmacfarlane.net/pandoc/) (for converting to latex, html, and docx), and 
+[MiKTeX](http://miktex.org/) (for converting latex to pdf).
+
+\newpage
+
+
+# Session info
+
+```{r, echo=FALSE, results="asis"}
+sessionInfo()
+```
+
+```{r, cache=F, include=FALSE, }
+opts_chunk$set(include=FALSE)
+opts_chunk$set(eval=FALSE)
+```
