@@ -32,7 +32,7 @@ lang: eng
 ```{r, message=FALSE, results='hide', include=FALSE, echo=F, cache=F, fig.height=5, fig.width=5, dev=c('pdf', 'tiff'), dev.args=list(pdf = list(colormodel = 'cmyk'), tiff = list(compression = 'lzw'))}
 # rmarkdown::render("feedback-dynamic.Rmd", "pdf_document", clean = FALSE)
 var = 'C:/Users/schepens/Google Drive' # fu
-const = '/ownCloud/Experiments/feedback and dynamic/github/Bandits'
+const = '/ownCloud/Experiments/feedback and dynamic/github/Bandit'
 base = paste(var, const, sep='')
 wd = paste(base, "/rmd", sep='')
 dataloc = "/finaldata"
@@ -128,6 +128,12 @@ simul = F
 \newpage
 
 ```{r child = 'exp1-finaldata-fit.Rmd'}
+```
+
+\newpage
+
+
+```{r child = 'exp1-finaldata-exploratory.Rmd'}
 ```
 
 \newpage

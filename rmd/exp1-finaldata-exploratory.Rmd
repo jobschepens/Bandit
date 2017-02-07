@@ -3,7 +3,7 @@
 \newpage
 
 ```{r, fig.keep='all'}
-load("../data/data.ev.test-final.Rmd")
+load("../processed/data.ev.test-final.RData")
 # unique(data.ev.test$id)
 tgc <- summarySE(data.ev.test, measurevar="ev.prop", groupvars=c("id", "age_group", "block_size", "ev"))
 tgc$ev.prop <- tgc$sum / 8
@@ -40,7 +40,7 @@ regret <- function(choices) {
 ```
 
 ```{r, results='asis', include=T, tidy=TRUE}
-load("../data/data.ev-final.Rmd")
+load("../processed/data.ev-final.RData")
 for(i in unique(data.ev$id)) {
  for(j in 1:length(unique(data.ev$block_id))) {
 #     i = 1

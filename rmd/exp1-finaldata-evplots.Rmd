@@ -4,19 +4,6 @@
 source("extra.R")
 npp = length(unique(data$id)) # n participants 
 
-# http://stat.wharton.upenn.edu/~buja/STAT-101/src-probability.R
-make.RV <- function(vals, probs.or.odds) {
-  names(vals) <- probs.or.odds;  class(vals) <- "RV";  vals } 
-
-# Obtain the list of probabilities from a random variable: p(x)
-probs <- function(X, scipen=10, digits=22) {
-  pr <- sapply(names(X), function(pstr) eval(parse(text=pstr)));
-  options(scipen=scipen)
-  names(pr) <- X
-  pr <- pmax(pr,0)
-  if(any(is.na(pr))) pr[is.na(pr)] <- pmax(0, (1-sum(pr[!is.na(pr)]))/sum(is.na(pr)))
-  pr/sum(pr) }
-
 # Expected value of a random variable:
 E <- function(x1, x2, p1, p2) { sum(c(x1, x2)*c(p1, p2)) }
 
@@ -145,26 +132,16 @@ tgc_within$age_group <- factor(tgc_within$age_group, levels = rev(levels(tgc_wit
 name = paste("../figs/knit/ev-finaldata-boxplots", gsub("/", "", dataloc), ".png", sep = "")
 name = paste("knit/ev-finaldata-boxplots", gsub("/", "", dataloc), ".png", sep = "")
 # pdf("plot-%d.pdf", width=inch_width, height=inch_height, pointsize = pointsize)
-
 ggplot(tgc, aes(x = ev, y = ev.prop, fill = age_group)) + 
-#   geom_violin(data = tgc_within) + 
   geom_boxplot(data = tgc_within, notch = FALSE) + 
-#   geom_bar(position=pd, stat="identity") + 
-#   geom_errorbar(aes(ymax=ev.prop+se , ymin= ev.prop-se), width = 0, position = pd) + 
-#   geom_violin(position=pd, stat="identity") + 
-#   geom_boxplot(position = pd) + 
-#   geom_violin(draw_quantiles = c(0.25, 0.5, 0.75))
   facet_wrap(~ block_size) + 
   scale_y_continuous(limits = c(0, 50)) + 
   scale_fill_discrete(
     breaks = c("1", "2"),
     labels = c("YA", "OA")) + 
-	
   labs(x="Hidden probability", y="Proportion of choices", fill = "Age")
-	# labs(x="Expected value", y="Average proportion", title="Age-related differences across choice environments", fill = "Age")
 # ggsave(name, width = 6, height = 4)
 # dev.off()
-# 
 ```
 
 
