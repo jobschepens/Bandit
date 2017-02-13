@@ -25,7 +25,7 @@ temp = paste(base, change, sep='')
 setwd(temp)
 dflist = lapply(list.files(pattern="*param_4"), read.table, header = T, sep = "")
 setwd(wd)
-df4 <- read.table("../rmd/orders4.txt", header = T)
+df4 <- read.table("../processed/orders4.txt", header = T)
 i = 1
 for (i in 1:length(dflist)) {
   dflist[[i]]$inc <- i*2-1
@@ -49,7 +49,7 @@ cond_4 <- log
 setwd(temp) 
 dflist = lapply(list.files(pattern="*param_8"), read.table, header = T, sep = "")
 setwd(wd)
-df8 <- read.table("../rmd/orders8.txt", header = T)
+df8 <- read.table("../processed/orders8.txt", header = T)
 
 for (i in 1:length(dflist)) {
   dflist[[i]]$inc <- i*2
