@@ -30,17 +30,19 @@ lang: eng
 ---
 
 ```{r, message=FALSE, results='hide', include=FALSE, echo=F, cache=F, fig.height=5, fig.width=5, dev=c('pdf', 'tiff'), dev.args=list(pdf = list(colormodel = 'cmyk'), tiff = list(compression = 'lzw'))}
+rm(list=ls())
+
 # rmarkdown::render("feedback-dynamic.Rmd", "pdf_document", clean = FALSE)
 var = 'C:/Users/schepens/Google Drive' # fu
+var = 'C:/Users/Job Schepens/Google Drive' # fu
 const = '/ownCloud/Experiments/feedback and dynamic/github/Bandit'
 base = paste(var, const, sep='')
 wd = paste(base, "/rmd", sep='')
 dataloc = "/finaldata"
 setwd(wd)
 
-# rm(list=ls())
 # options(width=60, width.cutoff=60)
-# install.packages("corrplot")
+# install.packages("tidyr")
 library(knitr)
 library(lattice)
 library(effects)
@@ -52,6 +54,7 @@ library(stargazer)
 library(psych)
 library(png)
 library(combinat)
+library(forcats)
 knitr::opts_chunk$set(results='show', cache=T, autodep=T, warning=F, message=F, prompt=F, eval=T, dpi=300, echo=F)
 theme_set(theme_bw())
 ```

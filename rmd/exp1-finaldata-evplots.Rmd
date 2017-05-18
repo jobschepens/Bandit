@@ -1,4 +1,4 @@
-#### EV plots
+#### Hidden probability
 
 ```{r, echo=FALSE}
 source("extra.R")
@@ -129,9 +129,8 @@ levels(tgc_within$age_group) <- gsub("old", "2", levels(tgc_within$age_group))
 tgc$age_group <- factor(tgc$age_group, levels = rev(levels(tgc$age_group)))
 tgc_within$age_group <- factor(tgc_within$age_group, levels = rev(levels(tgc_within$age_group)))
     
-name = paste("../figs/knit/ev-finaldata-boxplots", gsub("/", "", dataloc), ".png", sep = "")
-name = paste("knit/ev-finaldata-boxplots", gsub("/", "", dataloc), ".png", sep = "")
-# pdf("plot-%d.pdf", width=inch_width, height=inch_height, pointsize = pointsize)
+name = paste("../figs/knit/ev-finaldata-boxplots", gsub("/", "", dataloc), ".pdf", sep = "")
+# pdf(name, width=inch_width, height=inch_height, pointsize = pointsize)
 ggplot(tgc, aes(x = ev, y = ev.prop, fill = age_group)) + 
   geom_boxplot(data = tgc_within, notch = FALSE) + 
   facet_wrap(~ block_size) + 

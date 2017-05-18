@@ -47,7 +47,8 @@ data$real_block_id <- data$block_id
 data$real_block_id[data$block_order == "dec"] = 10 - data$block_id[data$block_order == "dec"] 
 data$real_block_id[data$real_block_id <= 0] = (data$real_block_id[data$real_block_id <= 0] + 16)
 
-struct <- rbind(c(1, 4, 2, 4, 1),
+struct <- rbind(
+c(1, 4, 2, 4, 1),
 c(2, 8, 3, 8, 2),
 c(3, 4, 4, 4, 3),
 c(4, 8, 5, 8, 4),

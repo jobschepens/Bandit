@@ -1,10 +1,11 @@
 #### Model fits per trial 
 
+\newpage
+
 
 ##### 4 options
 
 ```{r}
-source("bbanditsfunc.R") 
 load("../processed/data.ev-final.RData", verbose = F)
 
 ex = "in"

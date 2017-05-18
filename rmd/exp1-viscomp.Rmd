@@ -1,5 +1,6 @@
 #### Visual model comparison
 
+
 ```{r}
 my_gg_plot <- function(data, var, xlab, color_choose, limits_choose, breaks_choose, labels_choose, normaldens){
   data$temp <- data[,var]
@@ -40,12 +41,12 @@ my_gg_plot_no_legend <- function(data, var, xlab, color_choose, limits_choose, b
 	  		  data = normaldens, size = 1, alpha = 1, show.legend = FALSE) +
   	  geom_vline(aes(colour = age, xintercept=likBB_median.median),
 	    		   data=cdata, linetype="dashed", size=1, alpha = 1, show.legend = FALSE) +
-	  scale_fill_discrete(name = "Age") +
-	 scale_y_continuous("", 
+	  # scale_fill_discrete(name = "Age") +
+	 scale_y_continuous("",
      	breaks = c(), #0, 1/100, 2/100),
      	labels = expression(), #"0",".01",".02"),
      	expand = c(0,0)) +
-	  scale_x_continuous(xlab, 
+	  scale_x_continuous(xlab,
      	limits = limits_choose,
      	breaks = breaks_choose,
      	labels = labels_choose,
@@ -65,7 +66,9 @@ my_gg_plot_no_legend <- function(data, var, xlab, color_choose, limits_choose, b
 
 
 ```{r, cache=FALSE}
-# pdf("plot-%d.pdf", width=inch_width, height=inch_height, pointsize = pointsize)
+name = paste("../figs/knit/ev-finaldata-histo", gsub("/", "", dataloc), ".pdf", sep = "")
+# pdf(name, width=inch_width, height=inch_height, pointsize = pointsize)
+
 data <- read.table(file = "../processed/B-4-options-median.csv", quote = "", sep = ",", header = TRUE)
 data$age <- as.factor(data$age)
 
@@ -73,15 +76,15 @@ cdata <- ddply(data, .(age), summarise,
 	likBB_median.median=median(likBB_median), 
 	likBB_median.sd=sd(likBB_median),
 	likBB_median.N=length(likBB_median))
-cdata <- cdata[cdata$age %in% c(
-	"24", "70"),] # remove for panels
+cdata <- cdata[cdata$age %in% c("24", "70"),] # remove for panels
 grid <- with(data, seq(min(likBB_median), max(likBB_median), length = 100))
-
 normaldens <- ddply(data, "age", function(df) {data.frame(likBB_median = grid, 
-			density = dnorm(grid, median(df$likBB_median), sd(df$likBB_median)))})
+			density = dlnorm(grid, median(df$likBB_median), sd(df$likBB_median)))})
 
 p1 <- my_gg_plot_no_legend(data, var = "likBB_median", xlab = "Four Option Deviance", color_choose = "age",
+						   # limits_choose = c(0, 200), breaks_choose = c(50, 100, 150), labels_choose = expression(50, 100, 150), normaldens)
 						   limits_choose = c(40, 160), breaks_choose = c(50, 100, 150), labels_choose = expression(50, 100, 150), normaldens)
+
 data <- read.table(file = "../processed/B-8-options-median.csv", quote = "", sep = ",", header = TRUE)
 data$age <- as.factor(data$age)
 
@@ -89,12 +92,10 @@ cdata <- ddply(data, .(age), summarise,
 	likBB_median.median=median(likBB_median), 
 	likBB_median.sd=sd(likBB_median),
 	likBB_median.N=length(likBB_median))
-cdata <- cdata[cdata$age %in% c(
-	"24", "70"),] # remove for panels
+cdata <- cdata[cdata$age %in% c("24", "70"),] # remove for panels
 grid <- with(data, seq(min(likBB_median), max(likBB_median), length = 100))
-
 normaldens <- ddply(data, "age", function(df) {data.frame(likBB_median = grid, 
-			density = dnorm(grid, median(df$likBB_median), sd(df$likBB_median)))})
+			density = dlnorm(grid, median(df$likBB_median), sd(df$likBB_median)))})
 
 p3 <- my_gg_plot(data, var = "likBB_median", xlab = "Eight option Deviance", color_choose = "age", 
 				 limits_choose = c(100, 220), breaks_choose = c(150, 200), labels_choose = expression(150, 200), normaldens)

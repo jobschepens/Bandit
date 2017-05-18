@@ -185,19 +185,12 @@ aggrPRBBOA$group = "old"
 # aggrPRBB <- rbind(aggrPRBBYA, aggrPRBBOA)
 ```
 
+
 ```{r}
+# pdf(paste("../figs/knit/BB-fit-",  N_BANDITS, "opt-both.pdf",sep = ""), width=inch_width, height=inch_height, pointsize = pointsize)
 par(mfrow=c(1,2))
 plottrials(aggrPRBBYA, BBBICYA, group = "YA", lgnd = T, ylb = T, model = "Thompson")
 plottrials(aggrPRBBOA, BBBICOA, group = "OA", lgnd = F, ylb = T, model = "Thompson")
 par(mfrow=c(1,1))
-```
-
-
-```{r}
-pdf(paste("../figs/knit/BB-fit-",  N_BANDITS, "opt-both.pdf",sep = ""), width=inch_width, height=inch_height, pointsize = pointsize)
-par(mfrow=c(1,2))
-plottrials(aggrPRBBYA, BBBICYA, group = "YA", lgnd = T, ylb = T, model = "Thompson")
-plottrials(aggrPRBBOA, BBBICOA, group = "OA", lgnd = F, ylb = T, model = "Thompson")
-par(mfrow=c(1,1))
-invisible(dev.off())
+# invisible(dev.off())
 ```
