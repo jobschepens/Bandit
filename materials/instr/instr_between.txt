@@ -1,1 +1,3 @@
 Sie haben XXXX Punkte gewonnen! :) 
+
+Sie hätten noch maximal YYYY Punkten extra gewinnen können.
