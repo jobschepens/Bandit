@@ -1,23 +1,19 @@
-# Job Schepens & Lukas Nagel
-# jobschepens@fu-berlin.de & lnagel@mpib-berlin.mpg.de
+#Lukas Nagel - lnagel@mpib-berlin.mpg.de
 
-
-from psychopy import gui
-from glob import *
-import numpy as np
-import os
-import textwrap
 import pygame
 import time
 import random
-#import datetime
-#import wx
+import datetime
+import numpy as np
+from psychopy import gui
+import textwrap
+import os
+from glob import *
 
-
-def instruction(file,p,y_pos=200,width=60,size=35,r= "", rr = ""):
+def instruction(file,p,y_pos=200,width=60,size=35,r= ""):
     """Displays instructions from file"""
     p.screen.fill([225,225,225])
-    TextDisplay(file,y_pos,width,size,p,xx="XXXX",xr = r, yy="YYYY",yr = rr )
+    TextDisplay(file,y_pos,width,size,p,xx="XXXX",xr = r )
     center_text(u'Eingebetaste dr\xfccken, um fortzufahren',[0,p.rect[1]-100,p.rect[0],100],40,p)
     pygame.display.flip()
     game_over = False
@@ -33,7 +29,7 @@ def instruction(file,p,y_pos=200,width=60,size=35,r= "", rr = ""):
             elif event.type==pygame.KEYDOWN:
                 print event.key
 
-def instructStarting(file,p,y_pos=100,width=100,size=15,end=0):
+def instructStarting(file,p,y_pos=100,width=100,size=30,end=0):
     pic = file.replace(".txt",".png")
     showpic=0
     if os.path.isfile(pic):
@@ -141,17 +137,19 @@ def button(p,rect,text,textsize,pressed, colour = (242,144,32)):
     fill = (1 - pressed) * 5
     pygame.draw.rect(p.screen,colour,rect,fill)
     color = (59,93,105)
-    center_text("Spielautomat",       [rect[0], rect[1] + rect[3]-138, rect[2], 60], 20, p, colour = color)    
-    center_text(text,                 [rect[0], rect[1] + rect[3]-120, rect[2], 60], 30, p, colour = color)
+    center_text("Spielautomat",       [rect[0], rect[1] + rect[3]-138, rect[2], 60], 20, p, colour=color)    
+    center_text(text,          [rect[0], rect[1] + rect[3]-120, rect[2], 60], 30,p, colour = color)
+
 
 def get_info(keys,vals):
     """Opens GUI for input of participant info"""
     info = {keys[i]:vals[i] for i in range(len(keys))}
     infoSet =False
     while infoSet == False:
-        if info['Age']<1:
-            infoDlg = gui.DlgFromDict(dictionary=info, title='Bandit', order=keys,) # this attribute can't be changed by the user
-            if infoDlg.OK: # this will be True (user hit OK) or False (cancelled)
+        if info['Participant ID']<1:
+            infoDlg = gui.DlgFromDict(dictionary=info, title='Bandit',
+            order=keys,)#this attribute can't be changed by the user
+            if infoDlg.OK: #this will be True (user hit OK) or False (cancelled)
                 pass
             else: 
                 print 'User Cancelled'
@@ -166,7 +164,7 @@ def randomise(file,s=0,e=0,rand = 1,asstr=0):
         listy= [x.strip().split('\t') for x in f]
     if e>0:
         listy = [listy[i] for i in range(e)]
-    if s>0: # 
+    if s>0:
         listy = [listy[i] for i in np.arange(s,len(listy),1)]
     if rand ==1:
         randorder = random.sample(listy, len(listy))
