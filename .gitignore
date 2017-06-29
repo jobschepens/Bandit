@@ -43,8 +43,12 @@ Thumbs.db
 *.RData
 *.Ruserdata
 *.Rproj
+*.rdb
+*.rdx
+__globals
+__objects
+__packages
 
 # files #
 ######################
-*.pdf
 *.pyc
