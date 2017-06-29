@@ -1,3 +1,5 @@
-Du bist fertig. 
+Sie sind fertig. 
 
-Du hast XXXX Euro gewonnen! :) 
+Sie haben XXXX Spieleuro gewonnen! :) 
+
+Sie haben durchschnittlich YYYY Punkten pro Spiel gesammelt. 

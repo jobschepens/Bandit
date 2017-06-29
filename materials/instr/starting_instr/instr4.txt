@@ -1,6 +1,8 @@
 Hallo, 
 
-In dieser Studie werden Sie 16 Spiele spielen. Zuerst gibt es eine kurze Einführung.
+In dieser Studie können Sie 16 Spiele spielen. Durch Drücken der "Page Down" Taste gelangen Sie jeweils zum nächsten Spiel.
+
+Zuerst gibt es eine kurze Einführung.
 
 In jedem Spiel werden mehrere Spielautomaten gezeigt. Wenn Sie an einem Spielautomaten spielen, können Sie "1 Punkt" gewinnen. 
 
