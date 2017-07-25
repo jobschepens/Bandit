@@ -1,4 +1,4 @@
-```{r}
+```{r, echo=F}
 softmax <- function(Q, theta) {
 	e = exp(Q / theta)
 	# e = exp(theta * Q)
@@ -8,7 +8,8 @@ softmax <- function(Q, theta) {
 	probs
 }
 getScheme <- function(game, N_BANDITS, basescheme) {
-	oc        <- match(unique(game$bandit_real_id), game$bandit_real_id) # trial numbers of first time choice for each bandit
+	# trial numbers of first time choice for each bandit
+	oc        <- match(unique(game$bandit_real_id), game$bandit_real_id) 
 	newscheme <- as.data.frame(cbind(game$ev[oc],   game$bandit_real_id[oc]))
 	scheme    <- merge(basescheme, newscheme, by.x = "ev", by.y = "V1", all.x = T)
 	scheme    <- scheme[order(scheme[,1], decreasing = FALSE),]
@@ -21,7 +22,8 @@ getProbs <- function (wins, bantrials, theta, lik = 0) {
 	a 	   <- 1 + wins
 	b      <- 1 + bantrials - wins
 	xpoints 	<- matrix(data = 0, nrow = MAX_CHOICESB-1, ncol = N_BANDITS)
-	probability <- seq(from = 0 + (1/MAX_CHOICESB), to = (1-1/MAX_CHOICESB), by = 1/MAX_CHOICESB)
+	probability <- seq(from = 0 + (1/MAX_CHOICESB), 
+					   to = (1-1/MAX_CHOICESB), by = 1/MAX_CHOICESB)
 	for (bandit in 1:N_BANDITS) {
 		xpoints[,bandit] <- qbeta(probability, a[bandit], b[bandit])
 	}
@@ -77,7 +79,7 @@ bbanditsfunc <- function(param, game, N_BANDITS) {
 
 
 
-```{r}
+```{r, echo=F}
 subjects = unique(data$id)
 
 # data <- data[data$id %in% subjects[1], ]
@@ -97,7 +99,7 @@ subjects = unique(data$id)
 ```
 
 
-```{r, eval=F}
+```{r, eval = F, echo = F}
 print(length(unique(subjects)))
 
 FBB2 <- matrix(data = 0, nrow = length(unique(subjects)), ncol = 6)
@@ -118,14 +120,17 @@ for (id in 1:length(unique(subjects))) {
 				startParm <- runif(length(BB.LB)) * (BB.UB - BB.LB) + BB.LB 
 				names(startParm) <- c("theta")
 				# if(is.na(startParm)[1]) {startParm <- c(1)}
-				out <- optim(startParm, bbanditsfunc, game = gamedata, N_BANDITS = N_BANDITS, 
+				out <- optim(startParm, bbanditsfunc, game = gamedata, 
+							 N_BANDITS = N_BANDITS, 
 							 method = "L-BFGS-B", lower = c(0.005), upper = c(30))
 				whle = 0
 				while (out$value == 0 & whle < WHLEBB) {
-					startParm <- runif(length(BB.LB)) * (1 - BB.LB) + BB.LB # subst BB.UB with 1 to focus less on randomness
+					# subst BB.UB with 1 to a bit focus less on randomness?
+					startParm <- runif(length(BB.LB)) * (1 - BB.LB) + BB.LB 
 					names(startParm) <- c("theta")
 					# if(is.na(startParm)[1]) {startParm <- c(1)}
-					out <- optim(startParm, bbanditsfunc, game = gamedata, N_BANDITS = N_BANDITS, 
+					out <- optim(startParm, bbanditsfunc, game = gamedata, 
+								 N_BANDITS = N_BANDITS, 
 							 method = "L-BFGS-B", lower = BB.LB, upper = BB.UB)
 					whle = whle + 1
 					# print(paste("whle", whle, "tht", round(startParm, digits = 1)))
@@ -134,7 +139,9 @@ for (id in 1:length(unique(subjects))) {
 					out$value = NA
 					print(paste("OUt VALUE IS IMPOSSIBLE", id, games, sep = " "))
 				}
-				print(paste("BB ", round(out$value, digits = 1), round(out$par[1], digits = 1)))
+				print(paste("BB ", 
+							round(out$value, digits = 1), 
+							round(out$par[1], digits = 1)))
 				bb.lik[games,iter] <- out$value
 				bb.tht[games,iter] <- out$par[1]
 			}
@@ -154,7 +161,8 @@ FBB2
 
 subjects = unique(FBB2[,6])
 
-PRBB <- array(data = NA, dim = c(length(subjects)*8, 100, 2*N_BANDITS)) # 3D array subjects, trials, 8 (q values per trial and choices)
+# 3D array subjects, trials, 8 (q values per trial and choices)
+PRBB <- array(data = NA, dim = c(length(subjects)*8, 100, 2*N_BANDITS)) 
 
 for (id in 1:length(unique(subjects))){
 	thetaBB <- FBB2[id,2];

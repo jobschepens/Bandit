@@ -1,7 +1,14 @@
-#### Explore variation across problems
+## Variation across problems
 
 ```{r, cache=FALSE}
-load("../processed/data.ev-final.RData", verbose = F)
+# load("../processed/raw_data.RData", verbose = F)
+load("../processed/data.ev-final.RData", verbose = F) 
+# more variables added, importantly: 
+# "block_size_id" - id of block 1-8 for given size
+# "bandit_real_id" - id of bandit in the file 
+# "ev" - hidden probability of a given option
+# "cond" - combination of block_size_id and block_size
+# colnames(data.ev)[!colnames(data.ev) %in% colnames(data)]
 data <- data.ev
 npp = length(unique(data$id)) 
 blocks <- data[data$trial_number == max(data$trial_number),]
@@ -9,20 +16,21 @@ blocks <- data[data$trial_number == max(data$trial_number),]
 
 ```{r, eval=F}
 # avg score per block across pp's
-cdata.bl <- aggregate(blocks["block_score"], by=blocks[c("block_id", "age_group")], FUN=mean)
+cdata.bl <- aggregate(blocks["block_score"], 
+					  by=blocks[c("block_id", "age_group")], FUN=mean)
 names(cdata.bl)[names(cdata.bl)=="block_score"] <- "m"
-cdata.bl <- ddply(cdata.bl, "age_group", transform, g.m = mean(m)) # plyr method for group means
-cdata.bl$high <- cdata.bl$m - cdata.bl$g.m # how far off the group mean someone in a block is
+cdata.bl <- ddply(cdata.bl, "age_group", transform, g.m = mean(m)) 
+# how far off the group mean someone in a block is
+cdata.bl$high <- cdata.bl$m - cdata.bl$g.m 
 
 blocks <- blocks[order(blocks$id, blocks$real_block_id),]
 blocks$block_size_real_id <- 0
-blocks$block_size_real_id[blocks$block_size == 4] <- rep(1:8,npp) ## following experiment order
-blocks$block_size_real_id[blocks$block_size == 8] <- rep(1:8,npp) ## following experiment order
+blocks$block_size_real_id[blocks$block_size == 4] <- rep(1:8,npp) 
+blocks$block_size_real_id[blocks$block_size == 8] <- rep(1:8,npp) 
 ```
 
 ```{r, eval=T}
 source("extra.R")
-load("../processed/data.ev-final.RData", verbose = F)
 W_OPT = .6
 regret <- function(choices) { 
     return(cumsum(W_OPT - as.double(as.character(choices))))
@@ -36,12 +44,17 @@ for(i in 1:length(unique(data.ev$id))) {
     evs <- sort(unique(data.ev$ev))  
     if(problem$block_size[1] == 4) {evs <- evs[5:8]}
     ev_positions = match(problem$ev, evs)
-    blocks$regret[blocks$block_id == j & blocks$id == unique(blocks$id)[i]] = round(tail(regret(problem$ev), n = 1), digits = 1)
+    blocks$regret[blocks$block_id == j & blocks$id == unique(blocks$id)[i]] <- 
+    	round(tail(regret(problem$ev), n = 1), digits = 1)
  }
 }
 # length(blocks$regret[blocks$age_group == "young"]) / 16
-# sd(blocks$regret[blocks$age_group == "young" & blocks$block_size == 4 & blocks$order2 == 1])
-# length(blocks$regret[blocks$age_group == "young" & blocks$block_size == 4 & blocks$order2 == 1])
+# sd(blocks$regret[blocks$age_group == "young" & 
+# 				 	blocks$block_size == 4 & 
+# 				 	blocks$order2 == 1])
+# length(blocks$regret[blocks$age_group == "young" & 
+# 					 	blocks$block_size == 4 & 
+# 					 	blocks$order2 == 1])
 ```
 
 ```{r}
@@ -49,9 +62,11 @@ blocks$age_group     <- as.factor(as.character(blocks$age_group))
 blocks$block_size_id <- as.factor(as.character(blocks$block_size_id))
 levels(blocks$age_group) <- gsub("young", "1", levels(blocks$age_group))
 levels(blocks$age_group) <- gsub("old", "2", levels(blocks$age_group))
-blocks$age_group     <- factor(blocks$age_group, levels = rev(levels(blocks$age_group)))
+blocks$age_group     <- factor(blocks$age_group, 
+							   levels = rev(levels(blocks$age_group)))
 
-name = paste("../figs/knit/ev-finaldata-regretbox", gsub("/", "", dataloc), ".pdf", sep = "")
+name = paste("../figs/knit/ev-finaldata-regretbox", 
+			 gsub("/", "", dataloc), ".pdf", sep = "")
 # pdf(name, width=inch_width, height=inch_height, pointsize = pointsize)
 ggplot(blocks, aes(x = block_size_id, y = regret, fill = age_group)) +
 	geom_boxplot(notch = FALSE) +

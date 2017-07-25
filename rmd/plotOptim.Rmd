@@ -13,8 +13,9 @@ colSeColMeans <- function(x, na.rm = TRUE) {
 ```
 
 
-```{r, eval=T}
-plottrialsSE <- function(aggrPROB, BIC, group, lgnd, ylb, model = "predicted", col_se = array(data = 1, dim = c(100, 2*N_BANDITS))) {
+```{r, eval=T, echo = F}
+plottrialsSE <- function(aggrPROB, BIC, group, lgnd, ylb, model = "predicted", 
+						 col_se = array(data = 1, dim = c(100, 2*N_BANDITS))) {
 	sp = .4 # % of the points
 	colors = rainbow(n = 8, start=.7, end=.1)
 	x <- seq(1,100)
@@ -23,10 +24,15 @@ plottrialsSE <- function(aggrPROB, BIC, group, lgnd, ylb, model = "predicted", c
 		ylm = .35
 	}
 	xl <- seq(min(x),max(x), (max(x) - min(x))/1000)
-	plot (xl, predict(loess(aggrPROB[,N_BANDITS + 1]~x, span = sp),xl), col=colors[1], lty = "solid", type="l", axes=F,  bty="n", xlab="", ylab = "", xlim=c(1,100), ylim=c(0,ylm), cex.lab=1.4,  lwd=1)
-	lines(xl, predict(loess(aggrPROB[,N_BANDITS + 2]~x, span = sp),xl), col=colors[2], lty = "solid", lwd=1)
-	lines(xl, predict(loess(aggrPROB[,N_BANDITS + 3]~x, span = sp),xl), col=colors[3], lty = "solid", lwd=1)
-	lines(xl, predict(loess(aggrPROB[,N_BANDITS + 4]~x, span = sp),xl), col=colors[4], lty = "solid", lwd=1)
+	plot (xl, predict(loess(aggrPROB[,N_BANDITS + 1]~x, span = sp),xl), 
+		  col=colors[1], lty = "solid", type="l", axes=F,  bty="n", xlab="", 
+		  ylab = "", xlim=c(1,100), ylim=c(0,ylm), cex.lab=1.4,  lwd=1)
+	lines(xl, predict(loess(aggrPROB[,N_BANDITS + 2]~x, span = sp),xl), 
+		  col=colors[2], lty = "solid", lwd=1)
+	lines(xl, predict(loess(aggrPROB[,N_BANDITS + 3]~x, span = sp),xl), 
+		  col=colors[3], lty = "solid", lwd=1)
+	lines(xl, predict(loess(aggrPROB[,N_BANDITS + 4]~x, span = sp),xl), 
+		  col=colors[4], lty = "solid", lwd=1)
 	if (N_BANDITS == 8) {
 		l5 <- loess(aggrPROB[,N_BANDITS + 5]~x, span = sp)
 		l6 <- loess(aggrPROB[,N_BANDITS + 6]~x, span = sp)
@@ -36,10 +42,14 @@ plottrialsSE <- function(aggrPROB, BIC, group, lgnd, ylb, model = "predicted", c
 		lines(xl, predict(l6,xl), col=colors[6], lty = "solid", lwd=1)
 		lines(xl, predict(l7,xl), col=colors[7], lty = "solid", lwd=1)
 		lines(xl, predict(l8,xl), col=colors[8], lty = "solid", lwd=1)
-		lines(xl, predict(loess(aggrPROB[,N_BANDITS + 5] + col_se[,N_BANDITS + 5] ~x, span = sp),xl),type="l",col=colors[5], lty = "dashed")
-		lines(xl, predict(loess(aggrPROB[,N_BANDITS + 5] - col_se[,N_BANDITS + 5] ~x, span = sp),xl),type="l",col=colors[5], lty = "dashed")
-		lines(xl, predict(loess(aggrPROB[,N_BANDITS + 6] + col_se[,N_BANDITS + 6] ~x, span = sp),xl),type="l",col=colors[6], lty = "dashed")
-		lines(xl, predict(loess(aggrPROB[,N_BANDITS + 6] - col_se[,N_BANDITS + 6] ~x, span = sp),xl),type="l",col=colors[6], lty = "dashed")
+		lines(xl, predict(loess(aggrPROB[,N_BANDITS + 5] + col_se[,N_BANDITS + 5] ~x, 
+								span = sp),xl),type="l",col=colors[5], lty = "dashed")
+		lines(xl, predict(loess(aggrPROB[,N_BANDITS + 5] - col_se[,N_BANDITS + 5] ~x, 
+								span = sp),xl),type="l",col=colors[5], lty = "dashed")
+		lines(xl, predict(loess(aggrPROB[,N_BANDITS + 6] + col_se[,N_BANDITS + 6] ~x, 
+								span = sp),xl),type="l",col=colors[6], lty = "dashed")
+		lines(xl, predict(loess(aggrPROB[,N_BANDITS + 6] - col_se[,N_BANDITS + 6] ~x, 
+								span = sp),xl),type="l",col=colors[6], lty = "dashed")
 	}
 	axis(1,  at=0:2*50, cex.axis=1.2, labels = c("0", "50", "100")) 
 	axis(2,  at=0:2*.25,  las=2,  cex.axis=1.2)  
@@ -53,8 +63,9 @@ plottrialsSE <- function(aggrPROB, BIC, group, lgnd, ylb, model = "predicted", c
 ```
 
 
-```{r, eval=T}
-plottrials <- function(aggrPROB, BIC, group, lgnd, ylb, model = "predicted", col_se = array(data = 1, dim = c(100, 2*N_BANDITS))) {
+```{r, eval=T, echo = F}
+plottrials <- function(aggrPROB, BIC, group, lgnd, ylb, model = "predicted", 
+					   col_se = array(data = 1, dim = c(100, 2*N_BANDITS))) {
 	sp = .4 # % of the points
 	colors = rainbow(n = 8, start=.7, end=.1)
 	x <- seq(1,100)
@@ -71,7 +82,9 @@ plottrials <- function(aggrPROB, BIC, group, lgnd, ylb, model = "predicted", col
 	l2 <- loess(aggrPROB[,N_BANDITS + 2]~x, span = sp)
 	l3 <- loess(aggrPROB[,N_BANDITS + 3]~x, span = sp)
 	l4 <- loess(aggrPROB[,N_BANDITS + 4]~x, span = sp)
-	plot (xl, predict(n1,xl), col=colors[1], lty = "dashed", type="l", axes=F,  bty="n", xlab="", ylab = "", xlim=c(1,100), ylim=c(0,ylm), cex.lab=1.4,  lwd=1)
+	plot (xl, predict(n1,xl), col=colors[1], lty = "dashed", type="l", axes=F,  
+		  bty="n", xlab="", ylab = "", xlim=c(1,100), ylim=c(0,ylm), 
+		  cex.lab=1.4,  lwd=1)
 	lines(xl, predict(n2,xl), col=colors[2], lty = "dashed")
 	lines(xl, predict(n3,xl), col=colors[3], lty = "dashed")
 	lines(xl, predict(n4,xl), col=colors[4], lty = "dashed")
@@ -115,11 +128,12 @@ plottrials <- function(aggrPROB, BIC, group, lgnd, ylb, model = "predicted", col
 ```
 
 
-##### YA
+#### YA
 
 ```{r}
 group = "young"
-filename  <- paste("../processed/BB","results", N_BANDITS, "N", group, ex, ".RData", sep= "")
+filename  <- paste("../processed/BB","results", N_BANDITS, "N", 
+				   group, ex, ".RData", sep= "")
 load(filename, verbose = F)
 
 BBBICYA <- round(mean(FBB2[,4], na.rm = T), digits = 1)
@@ -140,23 +154,22 @@ plottrials(aggrPRBBYA, BBBICYA, group = "YA", lgnd = T, ylb = T, model = "Thomps
 ```
 
 ```{r}
-# plottrials(aggrPRBBYA, BBBICYA, group = "YA", lgnd = T, ylb = T, model = "Thompson", agsePROBYA)
+# plottrials(aggrPRBBYA, BBBICYA, group = "YA", lgnd = T, y
+		   # lb = T, model = "Thompson", agsePROBYA)
 ```
 
 \newpage
 
 
-##### same options  
-
-##### OA
+#### OA
 
 ```{r}
-# file:///C:/Users/schepens/Google Drive/ownCloud/Experiments/feedback and dynamic/rmd/results4Noldin.RData
+# file:results4Noldin.RData
 group = "old"
-filename  <- paste("../processed/BB","results", N_BANDITS, "N", group, ex, ".RData", sep= "")
+filename  <- paste("../processed/BB","results", N_BANDITS, "N", 
+				   group, ex, ".RData", sep= "")
 load(filename)
 BBBICOA <- round(mean(FBB2[,4], na.rm = T), digits = 1)
-
 if (N_BANDITS == 4) {
 	PRBB[, , 5:8][is.na(PRBB[, , 5:8])] <- 0
 }
@@ -174,7 +187,7 @@ plottrials(aggrPRBBOA, BBBICOA, group = "OA", lgnd = T, ylb = T, model = "Thomps
 \newpage
 
 
-##### Both
+#### Both
 
 ```{r}
 # merge
@@ -187,7 +200,8 @@ aggrPRBBOA$group = "old"
 
 
 ```{r}
-# pdf(paste("../figs/knit/BB-fit-",  N_BANDITS, "opt-both.pdf",sep = ""), width=inch_width, height=inch_height, pointsize = pointsize)
+# pdf(paste("../figs/knit/BB-fit-",  N_BANDITS, "opt-both.pdf",sep = ""), 
+# width=inch_width, height=inch_height, pointsize = pointsize)
 par(mfrow=c(1,2))
 plottrials(aggrPRBBYA, BBBICYA, group = "YA", lgnd = T, ylb = T, model = "Thompson")
 plottrials(aggrPRBBOA, BBBICOA, group = "OA", lgnd = F, ylb = T, model = "Thompson")

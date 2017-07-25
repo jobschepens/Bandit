@@ -1,6 +1,6 @@
-#### Regret
+## Regret
 
-##### Regret across participants
+### Regret across participants
 
 ```{r}
 regret <- function(choices) { 
@@ -8,7 +8,8 @@ regret <- function(choices) {
 }
 
 getScheme <- function(game, N_BANDITS, basescheme) {
-	oc        <- match(unique(game$bandit_real_id), game$bandit_real_id) # trial numbers of first time choice for each bandit
+	# trial numbers of first time choice for each bandit
+	oc        <- match(unique(game$bandit_real_id), game$bandit_real_id) 
 	newscheme <- as.data.frame(cbind(game$ev[oc],   game$bandit_real_id[oc]))
 	scheme    <- merge(basescheme, newscheme, by.x = "ev", by.y = "V1", all.x = T)
 	scheme    <- scheme[order(scheme[,1], decreasing = FALSE),]
@@ -21,14 +22,16 @@ getScheme <- function(game, N_BANDITS, basescheme) {
 
 
 ```{r}
-# choices is vector of all choices, numbers should represent the order of the hidden probabilities
+# choices is vector of all choices
+# numbers should represent the order of the hidden probabilities
 W_OPT = .6
 # hidden_prob = c(0.075, 0.15, 0.225, 0.3, 0.375, 0.45, 0.525, 0.6)
 load("../processed/data.ev-final.RData", verbose = F)
-alldata <- data.ev
+alldata <- data.ev; rm(data.ev)
 games = 8 # number of games
 pulls = 100
 ```
+
 
 ```{r}
 MIN_GRAIN  <- 100
@@ -46,13 +49,17 @@ all$se <- NA
 basescheme = as.data.frame(sort(unique(data$ev))); colnames(basescheme)[1] <- "ev"
 expected_total_regret = matrix(0, pulls, length(unique(data$age_group)))
 expected_thtal_regret = matrix(0, pulls, length(unique(data$age_group)))
-expected_total_regret_sds = replicate(length(unique(data$age_group)), matrix(0, pulls, games), simplify = FALSE)
-expected_thtal_regret_sds = replicate(length(unique(data$age_group)), matrix(0, pulls, games), simplify = FALSE)
+expected_total_regret_sds = replicate(length(unique(data$age_group)), 
+									  matrix(0, pulls, games), simplify = FALSE)
+expected_thtal_regret_sds = replicate(length(unique(data$age_group)), 
+									  matrix(0, pulls, games), simplify = FALSE)
 
 
-# pdf("plot-average-regret.pdf", width=inch_width, height=inch_height, pointsize = pointsize)
+# pdf("plot-average-regret.pdf", width=inch_width, 
+	# height=inch_height, pointsize = pointsize)
 # par(mfrow=c(1,2))      # number of rows, number of columns
-# plot(1, type="n", ylab="Average regret", xlim=c(0, 100), ylim=c(0, 20), bty="n", cex.axis=1.2, xlab="Trial", cex.lab=1.4)
+# plot(1, type="n", ylab="Average regret", xlim=c(0, 100), 
+	 # ylim=c(0, 20), bty="n", cex.axis=1.2, xlab="Trial", cex.lab=1.4)
 
 # i = 1
 # pp <- unique(data$id[data$age_group == unique(data$age_group)[i]])[1]
@@ -60,47 +67,62 @@ expected_thtal_regret_sds = replicate(length(unique(data$age_group)), matrix(0, 
 for(i in 1:length(unique(data$age_group))) {
   for(pp in unique(data$id[data$age_group == unique(data$age_group)[i]])) {
     for(tr in unique(data$block_id[data$id == pp])) {
-      evchoices = data$ev[data$id == pp & data$block_id == tr] # keuzelijst #data$age_group == unique(data$age_group)[i] & 
+      evchoices = data$ev[data$id == pp & data$block_id == tr] 
       game_regret = regret(evchoices)
       expected_total_regret[, i] <- expected_total_regret[, i] + game_regret
-      expected_total_regret_sds[[i]][, match(tr,unique(data$block_id[data$id == pp])) ] <- game_regret
-      
+      expected_total_regret_sds[[i]][, match(
+      	tr, unique(data$block_id[data$id == pp])
+      	) ] <- game_regret
       bantrials <- matrix(data = 0, nrow = 1, ncol = N_BANDITS) 
 	  wins      <- matrix(data = 0, nrow = 1, ncol = N_BANDITS) 
-	  subdata <- data[data$id == pp,]
-	  game = subdata[subdata$block_id == tr,]
-	  scheme <- getScheme(game, N_BANDITS, basescheme) 
+	  subdata   <- data[data$id == pp,]
+	  game      <- subdata[subdata$block_id == tr,]
+	  scheme    <- getScheme(game, N_BANDITS, basescheme) 
 	  evchoices <- rep(NA, 100)
-      for(trial in 0:99) {
+      file <- paste("../materials/conditions/trials/cond_", game$order[1], 
+      			  "_trials_", N_BANDITS,".csv", sep = "")
+	  df <- read.table(file, sep = "")
+	  for(trial in 0:99) {
       	a 	   <- 1 + wins
 		b      <- 1 + bantrials - wins
-		best <- qbeta(runif(1), a, b)
-		idx <- which(best == max(best, na.rm = TRUE))
+		best   <- qbeta(runif(1), a, b)
+		idx    <- which(best == max(best, na.rm = TRUE))
 		if (length(idx) > 1) { idx <- sample(idx, 1) } 
 		evchoices[trial+1] <- scheme$ev[idx]
-		R <- rbinom(1, 1, scheme$ev[idx]) # look up reward in correct game
+		# R <- rbinom(1, 1, scheme$ev[idx]) # look up reward in correct game
+		R <- df[trial+1, idx]
+		# cbind(game$payoff, game$bandit_real_id)
+		# cond_1_trials_4.csv # order 1-16 and block size 4/8 (together)
 		choice <- idx
 		wins     [choice] <- wins     [choice] + R
 		bantrials[choice] <- bantrials[choice] + 1
       }
 	  th_regret = regret(evchoices)
 	  expected_thtal_regret[, i] <- expected_thtal_regret[, i] + th_regret
-	  expected_thtal_regret_sds[[i]][, match(tr,unique(data$block_id[data$id == pp])) ] <- th_regret
+	  expected_thtal_regret_sds[[i]][, match(
+	  	tr,unique(data$block_id[data$id == pp])
+	  	) ] <- th_regret
     }
   } 
   pps <- length(unique(data$id[data$age_group == unique(data$age_group)[i]]))
-  # lines(expected_total_regret[, i] / (games*pps), col = i, lwd=1.5)
-  sds   <- transform(expected_total_regret_sds[[i]], SD=apply(expected_total_regret_sds[[i]],1, sd, na.rm = TRUE))[,9]
-  se <- sds / sqrt(games*pps)  # Calculate standard error of the mean
+  sds   <- transform(expected_total_regret_sds[[i]], 
+  				   SD = apply(expected_total_regret_sds[[i]], 1, 
+  				   		   sd, na.rm = TRUE))[,9]
+  sdsth <- transform(expected_thtal_regret_sds[[i]], 
+  				   SD = apply(expected_thtal_regret_sds[[i]], 1, 
+  				   		   sd, na.rm = TRUE))[,9]
+  se    <- sds / sqrt(games*pps)  # Calculate standard error of the mean
+  
+  # lines( expected_total_regret[, i] / (games*pps),       col = i, lwd=1.5)
   # lines((expected_total_regret[, i] / (games*pps)) + se, col = i, lwd=1.5, lty = 2)
   # lines((expected_total_regret[, i] / (games*pps)) - se, col = i, lwd=1.5, lty = 2)
   
-  all$regret[all$cond == N_BANDITS & all$age == i] <- expected_total_regret[, i] / (games*pps)
-  all$se    [all$cond == N_BANDITS & all$age == i] <- sds
-  
-  sdsth <- transform(expected_thtal_regret_sds[[i]], SD=apply(expected_thtal_regret_sds[[i]],1, sd, na.rm = TRUE))[,9]
-  all$regretth [all$cond == N_BANDITS & all$age == i] <- expected_thtal_regret[, i] / (games*pps)
-  all$seth     [all$cond == N_BANDITS & all$age == i] <- sdsth
+  all$regret  [all$cond == N_BANDITS & all$age == i] <- 
+  	expected_total_regret[, i] / (games*pps)
+  all$regretth[all$cond == N_BANDITS & all$age == i] <- 
+  	expected_thtal_regret[, i] / (games*pps)
+  all$se      [all$cond == N_BANDITS & all$age == i] <- sds
+  all$seth    [all$cond == N_BANDITS & all$age == i] <- sdsth
 } 
 # title("4-armed bandits")
 # legend("topleft", c("Young", "Old"), col = c(1, 2),
@@ -113,56 +135,73 @@ data$ev <- as.numeric(as.character(data$ev))
 basescheme = as.data.frame(sort(unique(data$ev))); colnames(basescheme)[1] <- "ev"
 expected_total_regret = matrix(0, pulls, length(unique(data$age_group)))
 expected_thtal_regret = matrix(0, pulls, length(unique(data$age_group)))
-expected_total_regret_sds = replicate(length(unique(data$age_group)), matrix(0, pulls, games), simplify = FALSE)
-expected_thtal_regret_sds = replicate(length(unique(data$age_group)), matrix(0, pulls, games), simplify = FALSE)
+expected_total_regret_sds = replicate(length(unique(data$age_group)), 
+									  matrix(0, pulls, games), simplify = FALSE)
+expected_thtal_regret_sds = replicate(length(unique(data$age_group)), 
+									  matrix(0, pulls, games), simplify = FALSE)
 
-# plot(1, type="n", ylab="", xlim=c(0, 100), ylim=c(0, 20), bty="n", cex.axis=1.2, xlab="", cex.lab=1.4)
+# plot(1, type="n", ylab="", xlim=c(0, 100), ylim=c(0, 20), 
+	 # bty="n", cex.axis=1.2, xlab="", cex.lab=1.4)
 for(i in 1:length(unique(data$age_group))) {
   for(pp in unique(data$id[data$age_group == unique(data$age_group)[i]])) {
     for(tr in unique(data$block_id[data$id == pp])) {
-      evchoices = data$ev[data$id == pp & data$block_id == tr] # keuzelijst #data$age_group == unique(data$age_group)[i] & 
-      game_regret = regret(evchoices)
+      evchoices   <- data$ev[data$id == pp & data$block_id == tr] 
+      game_regret <- regret(evchoices)
       expected_total_regret[, i] <- expected_total_regret[, i] + game_regret
-      expected_total_regret_sds[[i]][, match(tr,unique(data$block_id[data$id == pp])) ] <- game_regret
-      
+      expected_total_regret_sds[[i]][, match(
+      	tr, unique(data$block_id[data$id == pp])
+      	) ] <- game_regret
       bantrials <- matrix(data = 0, nrow = 1, ncol = N_BANDITS) 
 	  wins      <- matrix(data = 0, nrow = 1, ncol = N_BANDITS) 
-	  subdata <- data[data$id == pp,]
-	  game = subdata[subdata$block_id == tr,]
-	  scheme <- getScheme(game, N_BANDITS, basescheme) 
-	  
+	  subdata   <- data[data$id == pp,]
+	  game      <- subdata[subdata$block_id == tr,]
+	  scheme    <- getScheme(game, N_BANDITS, basescheme) 
 	  evchoices <- rep(NA, 100)
+	  file <- paste("../materials/conditions/trials/cond_", game$order[1], 
+	  			  "_trials_", N_BANDITS,".csv", sep = "")
+	  df <- read.table(file, sep = "")
       for(trial in 0:99) {
-      	a 	   <- 1 + wins
-		b      <- 1 + bantrials - wins
+      	a 	 <- 1 + wins
+		b    <- 1 + bantrials - wins
 		best <- qbeta(runif(1), a, b)
-		idx <- which(best == max(best, na.rm = TRUE))
+		idx  <- which(best == max(best, na.rm = TRUE))
 		if (length(idx) > 1) { idx <- sample(idx, 1) } 
 		evchoices[trial+1] <- scheme$ev[idx]
-		R <- rbinom(1, 1, scheme$ev[idx])
+		# R <- rbinom(1, 1, scheme$ev[idx])
+		R <- df[trial+1, idx]
 		choice <- idx
 		wins     [choice] <- wins     [choice] + R
 		bantrials[choice] <- bantrials[choice] + 1
       }
 	  th_regret = regret(evchoices)
 	  expected_thtal_regret[, i] <- expected_thtal_regret[, i] + th_regret
-	  expected_thtal_regret_sds[[i]][, match(tr,unique(data$block_id[data$id == pp])) ] <- th_regret
+	  expected_thtal_regret_sds[[i]][, match(
+	  	tr, unique(data$block_id[data$id == pp])
+	  	) ] <- th_regret
     }
   } 
   pps <- length(unique(data$id[data$age_group == unique(data$age_group)[i]]))
+  
+  sds   <- transform(expected_total_regret_sds[[i]], 
+  				   SD = apply(expected_total_regret_sds[[i]], 1, 
+  				   		   sd, na.rm = TRUE))[,9]
+  sdsth <- transform(expected_thtal_regret_sds[[i]], 
+  				   SD = apply(expected_thtal_regret_sds[[i]], 1, 
+  				   		   sd, na.rm = TRUE))[,9]
+  se    <- sds / sqrt(games*pps)  # Calculate standard error of the mean
+  
   # lines(expected_total_regret[, i] / (games*pps), col = i, lwd=1.5)
-  sds <- transform(expected_total_regret_sds[[i]], SD=apply(expected_total_regret_sds[[i]],1, sd, na.rm = TRUE))[,9]
-  se <- sds / sqrt(games*pps)  # Calculate standard error of the mean
   # lines((expected_total_regret[, i] / (games*pps)) + se, col = i, lwd=1.5, lty = 2)
   # lines((expected_total_regret[, i] / (games*pps)) - se, col = i, lwd=1.5, lty = 2)
   
-  all$regret[all$cond == N_BANDITS & all$age == i] <- expected_total_regret[, i] / (games*pps)
-  all$se    [all$cond == N_BANDITS & all$age == i] <- sds
-  
-  sdsth <- transform(expected_thtal_regret_sds[[i]], SD=apply(expected_thtal_regret_sds[[i]],1, sd, na.rm = TRUE))[,9]
-  all$regretth [all$cond == N_BANDITS & all$age == i] <- expected_thtal_regret[, i] / (games*pps)
-  all$seth     [all$cond == N_BANDITS & all$age == i] <- sdsth
+  all$regret  [all$cond == N_BANDITS & all$age == i] <- 
+  	expected_total_regret[, i] / (games*pps)
+  all$regretth[all$cond == N_BANDITS & all$age == i] <- 
+  	expected_thtal_regret[, i] / (games*pps)
+  all$se      [all$cond == N_BANDITS & all$age == i] <- sds
+  all$seth    [all$cond == N_BANDITS & all$age == i] <- sdsth
 } 
+
 # title("8-armed bandits")
 # dev.off()
 # par(mfrow=c(1,1))     # sets the plot window back to normal
@@ -170,8 +209,10 @@ for(i in 1:length(unique(data$age_group))) {
 
 
 ```{r}
-all$regret[all$age == 3 & all$cond == 8] <- (.6 - ((.075+.15+.225+.3 + .375+.45+.525+.6) * 1/8)) * 1:100
-all$regret[all$age == 3 & all$cond == 4] <- (.6 - ((                   .375+.45+.525+.6) * 1/4)) * 1:100
+all$regret[all$age == 3 & all$cond == 8] <- 
+	(.6 - ((.075+.15+.225+.3 + .375+.45+.525+.6) * 1/8)) * 1:100
+all$regret[all$age == 3 & all$cond == 4] <- 
+	(.6 - ((                   .375+.45+.525+.6) * 1/4)) * 1:100
 
 all$cond <- as.numeric(as.character(all$cond))
 all$age  <- as.numeric(as.character(all$age))
@@ -191,12 +232,15 @@ all <- all[all$age != 5,]
 
 ```{r}
 col <- c("#F8766D", "#00BFC4", "grey70", "grey80", "grey90")
-name = paste("../figs/knit/ev-finaldata-regretline", gsub("/", "", dataloc), ".pdf", sep = "")
+name = paste("../figs/knit/ev-finaldata-regretline", 
+			 gsub("/", "", dataloc), ".pdf", sep = "")
 # pdf(name, width=inch_width, height=inch_height, pointsize = pointsize)
 ggplot(all, aes(x=trial)) +
 	geom_line(aes(y = regret, colour = age)) +
-	# geom_smooth(aes(y = regret, colour = age), method="lm",formula=y~log(x), se = F) + 
-	# stat_summary(geom="ribbon", fun.ymin="min", fun.ymax="max", aes(fill=type), alpha=0.3) +
+	# geom_smooth(aes(y = regret, colour = age), 
+				# method="lm",formula=y~log(x), se = F) +
+	# stat_summary(geom="ribbon", fun.ymin="min", fun.ymax="max", 
+				 # aes(fill=type), alpha=0.3) +
 	geom_ribbon(aes(ymax = regret + se, ymin = regret - se, fill = age), alpha = .5) +
 	xlab("Trial") +
     ylab("Regret") +
@@ -214,8 +258,10 @@ ggplot(all, aes(x=trial)) +
 # ggplot_build(p)$data
 ```
 
+\newpage
 
-##### Regret per participant
+
+### Regret per participant
 
 ```{r}
 data <- alldata[alldata$block_size == 4,]
@@ -223,7 +269,7 @@ data$regret = 0
 id = 0
 for(pp in unique(data$id)) {
 	for(tr in unique(data$block_id[data$id == pp])) {
-	  evchoices = data$ev[data$id == pp & data$block_id == tr] # keuzelijst #data$age_group == unique(data$age_group)[i] & 
+	  evchoices = data$ev[data$id == pp & data$block_id == tr] 
 	  game_regret = regret(evchoices)
 	  data$regret[data$id == pp & data$block_id == tr] = game_regret
 	}
@@ -235,7 +281,7 @@ data <- alldata[alldata$block_size == 8,]
 id = 0
 for(pp in unique(data$id)) {
 	for(tr in unique(data$block_id[data$id == pp])) {
-	  evchoices = data$ev[data$id == pp & data$block_id == tr] # keuzelijst #data$age_group == unique(data$age_group)[i] & 
+	  evchoices = data$ev[data$id == pp & data$block_id == tr] 
 	  game_regret = regret(evchoices)
 	  data$regret[data$id == pp & data$block_id == tr] = game_regret
 	}
@@ -249,7 +295,7 @@ alldata = data
 
 
 
-```{r, echo=FALSE}
+```{r, echo=T}
 agg = "id" # grouping var
 # blocks
 data <- alldata[alldata$block_size == 4,]
@@ -269,6 +315,8 @@ cdata$m.sc <- scale(cdata$m, center = TRUE, scale = TRUE)
 cdata$sd.sc <- scale(cdata$sd, center = TRUE, scale = TRUE)
 cdata4 = cdata
 ```
+
+\newpage
 
 ```{r, results='asis'}
 cdata$age_group = "old"
@@ -290,7 +338,6 @@ cdata.test <- ddply(cdata, .(age_group), summarize,
                     sd = mean(sd),
 					sd.sc = mean(sd.sc),
                     se = mean(se))
-# cdata.test
 ```
 
 ```{r, results='asis'}
@@ -301,8 +348,10 @@ stargazer(cdata.test, summary = FALSE, header=FALSE, rownames = FALSE,
           font.size = "tiny")
 ```
 
+\newpage
 
-```{r, echo=FALSE}
+
+```{r, echo=T}
 agg = "id" # grouping var
 # blocks
 data <- alldata[alldata$block_size == 8,]
@@ -341,7 +390,6 @@ cdata.test <- ddply(cdata, .(age_group), summarize,
                     sd = mean(sd),
 					sd.sc = mean(sd.sc),
                     se = mean(se))
-# cdata.test
 ```
 
 ```{r, results='asis'}

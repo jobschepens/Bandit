@@ -1,24 +1,27 @@
-#### Individual proportions
+## Individual proportions
 
 \newpage
 
 ```{r, fig.keep='all'}
 load("../processed/data.ev.test-final.RData")
 # unique(data.ev.test$id)
-tgc <- summarySE(data.ev.test, measurevar="ev.prop", groupvars=c("id", "age_group", "block_size", "ev"))
+tgc <- summarySE(data.ev.test, measurevar="ev.prop", 
+				 groupvars=c("id", "age_group", "block_size", "ev"))
 tgc$ev.prop <- tgc$sum / 8
 
 for (i in unique(data.ev.test$id)) {
-  pd <- position_dodge(0.6) # move them .05 to the left and right
-  chart_title <- paste("Proportions for participant number ",i,".",sep="")
-  p <- ggplot(tgc[tgc$id == i,], aes(x = ev, y = ev.prop, fill = age_group)) + 
-    geom_bar(position=pd, stat="identity") + 
-    geom_errorbar(aes(ymax=ev.prop+se , ymin= ev.prop-se), width = 0, position = pd) + 
-    facet_wrap(~ block_size) + 
-scale_y_continuous(breaks=0:100*20, limits = c(0,100)) +
-    labs(x="Expected value", y="Average proportion", title=chart_title, fill = "Age")
-  # ggsave("ev_pilot2_error_bars.png", width = 6, height = 4)
-  print(p) 
+	pd <- position_dodge(0.6) # move them .05 to the left and right
+	chart_title <- paste("Proportions for participant number ",i,".",sep="")
+	p <- ggplot(tgc[tgc$id == i,], aes(x = ev, y = ev.prop, fill = age_group)) + 
+		geom_bar(position=pd, stat="identity") + 
+		geom_errorbar(aes(ymax=ev.prop+se , ymin= ev.prop-se), 
+					  width = 0, position = pd) + 
+		facet_wrap(~ block_size) + 
+		scale_y_continuous(breaks=0:100*20, limits = c(0,100)) +
+		labs(x="Expected value", y="Average proportion", 
+			 title=chart_title, fill = "Age")
+	# ggsave("ev_pilot2_error_bars.png", width = 6, height = 4)
+	print(p) 
 }
 ```
 
@@ -26,92 +29,99 @@ scale_y_continuous(breaks=0:100*20, limits = c(0,100)) +
 
 \cleartoleftpage
 
-#### Choice profiles
+## Choice profiles
 
 A simple way to look at sequential sampling data [@steingroever_data_2015; @wetzels_bayesian_2010]
 
 ```{r}
-# choices is vector of all choices, numbers should represent the order of the hidden probabilities
+# choices is vector of all choices, 
+# numbers should represent the order of the hidden probabilities
 W_OPT = .6
-
 regret <- function(choices) { 
-    return(cumsum(W_OPT - as.double(as.character(choices))))
+	return(cumsum(W_OPT - as.double(as.character(choices))))
 }
 ```
 
 ```{r, results='asis', include=T, tidy=TRUE}
 load("../processed/data.ev-final.RData")
 for(i in unique(data.ev$id)) {
- for(j in 1:length(unique(data.ev$block_id))) {
-#     i = 1
-#     j = 8
-    cat("\n\n\\newpage\n")
-    problem <- data.ev[data.ev$block_id == j & data.ev$id == i,]
-    print(paste("id: ", i 
-          , ", gender: ", problem$gender[1] 
-          , ", age: ", problem$age[1] 
-          , ", block: ", j 
-          , ", total: ", problem$block_score[problem$trial_number == 99]
-          , "", sep = ""))
-    cat("\n")
-
-    banditcnt <- problem$block_size[1]
-    evs <- sort(unique(data.ev$ev))  
-    if(problem$block_size[1] == 4) {evs <- evs[5:8]}
-    ev_positions = match(problem$ev, evs)    
-    
-    ttlrgrt = round(tail(regret(problem$ev), n = 1), digits = 1)
-    pnts = problem$block_score[problem$trial_number == 99]    
-#     pdf(paste(
-#           "Total regret of ", 
-#           ttlrgrt
-#           , " points"
-#           , " by a ", problem$age[1]     
-#           , " year old "
-#           , problem$gender[1] 
-#           , " (id ", i 
-#           , ", gm ", j
-#           , ").pdf"
-#           , sep = ""), width=inch_width, height=inch_height, pointsize = pointsize)
-
-    plot(ev_positions,  
-         type="l", # lines and dots
-         bty="n",  # supresses box 
-         axes=F,  
-         ylab="Hidden probabilities",  xlab="Trial number", 
-         cex.lab=1.4,  lwd=1.5) 
-    
-    levels(evs) <- gsub("0.0", ".0", levels(tgc$ev))
-    levels(evs) <- gsub("0.", ".", levels(tgc$ev))
-    levels(evs)[levels(tgc$ev)=="..5"] <- ".075"
-    if(problem$block_size[1] == 8) {levels(evs)[1] <- ".075"}
-    axis(1,  at=0:10*10, cex.axis=1.2) 
-    axis(2,  at=1:(banditcnt),  label = as.character(evs), las=2,  cex.axis=1.2)    
-    points(x = which(problem$payoff == 0 %in% TRUE), y = ev_positions[problem$payoff == 0], col = "red", pch = 19)
-    points(x = which(problem$payoff == 1 %in% TRUE), y = ev_positions[problem$payoff == 1], col = "green", pch = 19)
-    title(paste(
-          "Total regret of ", 
-          ttlrgrt
-          , " points"
-          , " by a ", problem$age[1]     
-          , " year old "
-          , problem$gender[1] 
-          , " (id ", i 
-          , ", gm ", j
-          , ")"
-          , sep = ""))
-      
-#     dev.off()
-
-    # Reaction Time
-    problem$rt[problem$rt > 2] <- 2
-    plot(problem$rt,  
-         type="l",  bty="n",  axes=F,  ylab="Reaction Time",  xlab="Trial", 
-         cex.lab=1.4,  lwd=1.5, ylim = c(0,2)) 
-    points(x = which(problem$payoff == 0 %in% TRUE), y = problem$rt[problem$payoff == 0], col = "red", pch = 19)
-    points(x = which(problem$payoff == 1 %in% TRUE), y = problem$rt[problem$payoff == 1], col = "green", pch = 19)
-    axis(1,  at=0:10*10, cex.axis=1.2) 
-    axis(2,  at=0:5, las=2,  cex.axis=1.2) # (((round(min(problem$rt), 1)-0)*1):((round(max(problem$rt), 1)+1)*1))/1
- }
+	for(j in 1:length(unique(data.ev$block_id))) {
+		#     i = 1
+		#     j = 8
+		cat("\n\n\\newpage\n")
+		problem <- data.ev[data.ev$block_id == j & data.ev$id == i,]
+		print(paste("id: ", i 
+					, ", gender: ", problem$gender[1] 
+					, ", age: ", problem$age[1] 
+					, ", block: ", j 
+					, ", total: ", problem$block_score[problem$trial_number == 99]
+					, "", sep = ""))
+		cat("\n")
+		
+		banditcnt <- problem$block_size[1]
+		evs <- sort(unique(data.ev$ev))  
+		if(problem$block_size[1] == 4) {evs <- evs[5:8]}
+		ev_positions = match(problem$ev, evs)    
+		
+		ttlrgrt = round(tail(regret(problem$ev), n = 1), digits = 1)
+		pnts = problem$block_score[problem$trial_number == 99]    
+	    # pdf(paste(
+	    #       "Total regret of ",
+	    #       ttlrgrt
+	    #       , " points"
+	    #       , " by a ", problem$age[1]
+	    #       , " year old "
+	    #       , problem$gender[1]
+	    #       , " (id ", i
+	    #       , ", gm ", j
+	    #       , ").pdf"
+	    #       , sep = ""), 
+	    # 	width=inch_width, 
+	    # 	height=inch_height, 
+	    # 	pointsize = pointsize)
+		plot(ev_positions,  
+			 type="l", # lines and dots
+			 bty="n",  # supresses box 
+			 axes=F,  
+			 ylab="Hidden probabilities",  xlab="Trial number", 
+			 cex.lab=1.4,  lwd=1.5) 
+		
+		levels(evs) <- gsub("0.0", ".0", levels(tgc$ev))
+		levels(evs) <- gsub("0.", ".", levels(tgc$ev))
+		levels(evs)[levels(tgc$ev)=="..5"] <- ".075"
+		if(problem$block_size[1] == 8) {levels(evs)[1] <- ".075"}
+		axis(1,  at=0:10*10, cex.axis=1.2) 
+		axis(2,  at=1:(banditcnt),  label = as.character(evs), las=2,  cex.axis=1.2)  
+		points(x = which(problem$payoff == 0 %in% TRUE), 
+			   y = ev_positions[problem$payoff == 0], col = "red", pch = 19)
+		points(x = which(problem$payoff == 1 %in% TRUE), 
+			   y = ev_positions[problem$payoff == 1], col = "green", pch = 19)
+		title(paste(
+			"Total regret of ", 
+			ttlrgrt
+			, " points"
+			, " by a ", problem$age[1]     
+			, " year old "
+			, problem$gender[1] 
+			, " (id ", i 
+			, ", gm ", j
+			, ")"
+			, sep = ""))
+		
+		#     dev.off()
+		
+		# Reaction Time
+		problem$rt[problem$rt > 2] <- 2
+		plot(problem$rt,  
+			 type="l",  bty="n",  axes=F,  ylab="Reaction Time",  xlab="Trial", 
+			 cex.lab=1.4,  lwd=1.5, ylim = c(0,2)) 
+		points(x = which(problem$payoff == 0 %in% TRUE), 
+			   y = problem$rt[problem$payoff == 0], col = "red", pch = 19)
+		points(x = which(problem$payoff == 1 %in% TRUE), 
+			   y = problem$rt[problem$payoff == 1], col = "green", pch = 19)
+		axis(1,  at=0:10*10, cex.axis=1.2) 
+		axis(2,  at=0:5, las=2,  cex.axis=1.2) 
+		# (((round(min(problem$rt), 1)-0)*1):((round(max(problem$rt), 1)+1)*1))/1
+	}
 }
 ```

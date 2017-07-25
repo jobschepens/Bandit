@@ -1,67 +1,177 @@
-#### Hidden probability
+## Hidden probability
 
 ```{r, echo=FALSE}
 source("extra.R")
 npp = length(unique(data$id)) # n participants 
 
 # Expected value of a random variable:
-E <- function(x1, x2, p1, p2) { sum(c(x1, x2)*c(p1, p2)) }
+E <- function(x1, x2, p1, p2) { 
+	sum(
+		c(x1, x2) * c(p1, p2)
+		) 
+}
 
 # Variance of a random variable:
 # V <- function(X) { E((X-E(X))^2) }
-V <- function(x1, x2, p1, p2) { E(
-  (x1-E(x1, x2, p1, p2))^2, 
-  (x2-E(x1, x2, p1, p2))^2,
-  p1, 
-  p2) }
+
+V <- function(x1, x2, p1, p2) { 
+	E(
+		(x1-E(x1, x2, p1, p2))^2, 
+		(x2-E(x1, x2, p1, p2))^2,
+		p1, 
+		p2) 
+}
 
 ```
 
 
+```{r, results='asis'}
+# generate orders
+aap <- seq(.075, .6, by = .075) # pilot 3
+x <- combinat:::permn(aap) # all possible permutations
+select <- sample(factorial(8), 8, replace = FALSE) # select 8
+ok <- x[select]
+df8 <- do.call(rbind.data.frame, ok)
+colnames(df8) <- as.character(1:8)
+# write.table(df8, "../processed/orders8.txt", sep = "\t", 
+# quote = F, row.names = F, col.names = T)
+df8 <- read.table("../processed/orders8.txt", header = T)
+for(i in 1:8) {
+  df <- data.frame(ID=c(1:8))
+  df$Payoff1 <- 1
+  df$Payoff2 <- 0
+  df$Prob1 <- as.numeric(df8[i,])
+  df$Prob2 <- 1-df$Prob1
+  # file <- paste("/materials/conditions/cond_", i*2-1, "_param_4.csv", sep = "")
+  # write.table(df, file, sep = "\t", quote = F, row.names = F)
+}
+TYPE = "latex"
+stargazer(df8, 
+          summary = FALSE,
+          type = TYPE, style = "default",
+          title = "8 options",
+          digits = 1, digits.extra = 0, initial.zero = FALSE,
+          column.sep.width = "5pt", header=F,
+          label = "8options")
+```
+
+```{r, results='asis'}
+x <- combinat:::permn(aap[5:8])
+select <- sample(factorial(4), 8, replace = FALSE)
+ok <- x[select]
+df4 <- do.call(rbind.data.frame, ok)
+colnames(df4) <- as.character(1:4)
+# write.table(df4, "../processed/orders4.txt", sep = "\t", 
+# quote = F, row.names = F, col.names = T)
+df4 <- read.table("../processed/orders4.txt", header = T)
+for(i in 1:8) {
+  df <- data.frame(ID=c(1:4))
+  df$Payoff1 <- 1
+  df$Payoff2 <- 0
+  df$Prob1 <- as.numeric(df4[i,])
+  df$Prob2 <- 1-df$Prob1
+  # file <- paste("/materials/conditions/cond_", i*2-1, "_param_4.csv", sep = "")
+  # write.table(df, file, sep = "\t", quote = F, row.names = F)
+}
+TYPE = "latex"
+stargazer(df4, 
+          summary = FALSE,
+          type = TYPE, style = "default",
+          title = "4 options",
+          digits = 1, digits.extra = 0, initial.zero = FALSE,
+          column.sep.width = "5pt", header=F,
+          label = "4options")
+```
+
+
 ```{r}
-## Lookup ev's in problem specification files
+
+order <- matrix(nrow = 36, ncol = 16)
+trialnr <- matrix(nrow = 36, ncol = 16)
+for(i in 1:36) {
+  if((((i-1) %% 4) < 2) == T) {
+    order[i,] <- c(1:16)
+    for(j in 1:16) {
+      trialnr[i,j] <- j
+    }
+  } 
+  else {
+    order[i,] <- c(16:1)
+    for(j in 1:16) {
+      trialnr[i,j] <- 10-j
+      if (10-j <= 0) trialnr[i,j] <- (10-j) + 16
+#       trialnr[i,j] <- 16-j
+#       if (16-j <= 0) trialnr[i,j] <- (16-j) + 16 # last trial is always 16
+    }
+  }
+}
+```
+
+
+```{r, results='asis'}
+dimnames(trialnr) <- list(rownames(trialnr, do.NULL = FALSE, prefix = "pp "),
+                          colnames(trialnr, do.NULL = FALSE, prefix = ""))
+
+TYPE = "latex"
+stargazer(trialnr, 
+          summary = FALSE,
+          type = TYPE, style = "default",
+          title = "Order of problems per participant",
+          digits = 0, digits.extra = 0, initial.zero = FALSE,
+          column.sep.width = "5pt", header=F,
+          label = "problemorder")
+```    
+
+
+```{r}
+# lookup ev's and bandit id's in problem specification files
+# load 8 randomly generated files for the 4 option condition 
+# contains details about how bandit orders where presented randomly on the screen
 change <- "/finaldata/conditions"
-temp = paste(base, change, sep='')
-setwd(temp)
+setwd(paste(home,change, sep = ""))
 dflist = lapply(list.files(pattern="*param_4"), read.table, header = T, sep = "")
-setwd(wd)
+setwd(paste(home,rmd, sep = ""))
+
+# load randomly generated file with bandit orders
 df4 <- read.table("../processed/orders4.txt", header = T)
 i = 1
 for (i in 1:length(dflist)) {
-  dflist[[i]]$inc <- i*2-1
-  dflist[[i]]$dec <- i*2
-  dflist[[i]]$i <- i
-  order <- dflist[[i]]$Prob1
+  dflist[[i]]$inc <- i*2-1 # add 8 uneven block_id's 1,3,...,15
+  dflist[[i]]$dec <- i*2 # add 8 even block_id's 2,4,...,16
+  dflist[[i]]$i <- i # add counter 1-8
+  order8 <- dflist[[i]]$Prob1 # lookup order from orders4.txt, which is unnecessary
   row = c()
   for(j in 1:nrow(df4)) {
-    row[j] <- all(as.numeric(df4[j,] ) == order)
+    row[j] <- all(as.numeric(df4[j,] ) == order8) # check which row has the same order
   }
   row.names(df4[row,])
-  dflist[[i]]$order <- as.integer(row.names(df4[row,]))
+  # add "order" from genfile to cond orders
+  # indicates another randomly generated problem ID
+  dflist[[i]]$order8 <- as.integer(row.names(df4[row,])) 
 }
 
 log <- do.call(rbind, dflist, quote = T)
 log <- log[complete.cases(log),]
-log$ID <- log$ID - 1
+log$ID <- log$ID - 1 # bandit id's start with 0 in experiment file
 log$block_size = 4
 cond_4 <- log
 
-setwd(temp) 
+setwd(paste(home,change, sep = ""))
 dflist = lapply(list.files(pattern="*param_8"), read.table, header = T, sep = "")
-setwd(wd)
+setwd(paste(home,rmd, sep = ""))
 df8 <- read.table("../processed/orders8.txt", header = T)
 
 for (i in 1:length(dflist)) {
   dflist[[i]]$inc <- i*2
   dflist[[i]]$dec <- i*2-1
   dflist[[i]]$i <- i
-  order <- dflist[[i]]$Prob1
+  order8 <- dflist[[i]]$Prob1
   row = c()
   for(j in 1:nrow(df8)) {
-    row[j] <- all(as.numeric(df8[j,] ) == order)
+    row[j] <- all(as.numeric(df8[j,] ) == order8)
   }
   row.names(df4[row,])
-  dflist[[i]]$order <- as.integer(row.names(df8[row,]))
+  dflist[[i]]$order8 <- as.integer(row.names(df8[row,]))
 }
 
 log <- do.call(rbind, dflist, quote = T)
@@ -70,66 +180,152 @@ log$ID <- log$ID - 1
 log$block_size = 8
 cond_8 <- log
 cond <- rbind(cond_4, cond_8)
-names(cond)[names(cond)=="ID"] <- "bandit_id"
-names(cond)[names(cond)=="i"] <- "block_size_id"
+names(cond)[names(cond)=="ID"] <- "bandit_id" # as based on cond files
+names(cond)[names(cond)=="i"] <- "block_size_id8" # order based on condition files
 
-cond$bandit_real_id[cond$block_size == 4] <- rep(1:4,8) ## following experiment order
-cond$bandit_real_id[cond$block_size == 8] <- rep(1:8,8) ## following experiment order
+# determine 1-8 bandit id's (same as bandit_id as based on condition files + 1)
+cond$bandit_real_id[cond$block_size == 4] <- rep(1:4,8) 
+cond$bandit_real_id[cond$block_size == 8] <- rep(1:8,8) 
 
-cond$order[cond$block_size == 4] <- (cond$order[cond$block_size == 4] * 2) - 1
-cond$order[cond$block_size == 8] <- cond$order[cond$block_size == 8] * 2
+# determine 1-16 instead of 1-8 order number for both conditions based on orders.txt
+cond$order <- cond$order8 
+cond$order16[cond$block_size == 4] <- (cond$order8[cond$block_size == 4] * 2) - 1
+cond$order16[cond$block_size == 8] <- cond$order8[cond$block_size == 8] * 2
+
+# determine 1-16 instead of 1-8 order number for both conditions based on orders.txt
+cond$block_size_id <- cond$block_size_id8
+cond$block_size_id16[cond$block_size == 4] <- 
+	(cond$block_size_id8[cond$block_size == 4] * 2) - 1
+cond$block_size_id16[cond$block_size == 8] <- 
+	cond$block_size_id8[cond$block_size == 8] * 2
 log <- cond
-```
+# log
+# block_size_id's are based on cond param files
+# order id's are based on orders.txt files
 
+# Retrieve EV's
+# log$ev <- 0
+# log$v <- 0
+# log$maxev <- 0
+# for(i in 1:nrow(log)) {
+#   log$ev[i] <- E(log$Payoff1[i], log$Payoff2[i], log$Prob1[i], log$Prob2[i])
+#   log$v[i] <- V(log$Payoff1[i], log$Payoff2[i], log$Prob1[i], log$Prob2[i])
+# }
 
-```{r}
-## Retrieve EV's
-log$ev <- 0
-log$v <- 0
-log$maxev <- 0
-for(i in 1:nrow(log)) {
-  log$ev[i] <- E(log$Payoff1[i], log$Payoff2[i], log$Prob1[i], log$Prob2[i])
-  log$v[i] <- V(log$Payoff1[i], log$Payoff2[i], log$Prob1[i], log$Prob2[i])
-}
+log$ev <- log$Prob1
+
+# add cond and maxev variables
 log$cond <- interaction(log$block_size_id, log$block_size)
 log$cond <- interaction(log$block_size_id, log$block_size)
 for(i in unique(log$cond)) {
   log$maxev[log$cond == i] <- max(log$ev[log$cond == i])
 }
+# colnames(log)
+
+log <- subset(log, select = c(-Prob1))
+log <- subset(log, select = c(-Prob2))
+log <- subset(log, select = c(-Payoff2))
+log <- subset(log, select = c(-Payoff1))
+log <- subset(log, select = c(-order))
+```
+
+```{r}
+# colnames(data)
+load("../processed/raw_data.RData", verbose = F)
+data <- subset(data, select = -timestamp)
+data <- subset(data, select = -total_score_overall)
+# data <- subset(data, select = -timestrip)
+# summary(data.ev)
+
+
+# uneven
+data$block_size_id8[data$real_block_id %% 2 == 1] =
+	(data$real_block_id[data$real_block_id %% 2 == 1] + 1)/2
+# even
+data$block_size_id8[data$real_block_id %% 2 == 0] =
+	(data$real_block_id[data$real_block_id %% 2 == 0])/2
+
+
+
+# data.ev <- merge(data, log,
+# 				 by.x = c("bandit_id", "block_size_id8", "block_size"), # simpler 
+# 				 by.y = c("bandit_id", "block_size_id8", "block_size"), 
+# 				 sort = F)
+
+log <- subset(log, select = c(-block_size_id8))
+data.ev <- merge(data, log,
+				 by.x = c("bandit_id", "order", "block_size"), 
+				 by.y = c("bandit_id", "order16", "block_size"), 
+				 sort = F)
+
+# data.ev <- merge(data, log,
+# 				 by.x = c("bandit_id", "order", "block_size"), 
+# 				 by.y = c("bandit_id", "block_size_id16", "block_size"), 
+# 				 sort = F)
+
+data.ev <- data.ev[order(data.ev$id, data.ev$block_id, data.ev$trial_number),]
+# data.ev8 <- data.ev8[order(data.ev8$id, data.ev8$block_id,
+						   # data.ev8$trial_number),]
+# data.ev16 <- data.ev16[order(data.ev16$id, data.ev16$block_id,
+							 # data.ev16$trial_number),]
+# log[log$bandit_id == 0,]
+# sub = c("order", "block_size", "real_block_id", "id", 
+# 		"block_size_start", "block_order",
+# 		"inc", "dec", "order8","bandit_real_id",
+# 		"order16", "block_size_id", "cond")
+# head(subset(data.ev8[data$trial_number == 99 & data$block_id == 16,], 
+			# select = sub), n = 12)
+# head(subset(data.ev16[data$trial_number == 99 & data$block_id == 16,], 
+			# select = sub), n = 12)
+
+rownames(data.ev) = 1:nrow(data.ev)
+data.ev$max <- F
+data.ev$max[data.ev$ev >= data.ev$maxev] <- T
+data.ev$ev <- as.factor(data.ev$ev)
+# convert to POSIXct to use in data frames / ddply
+# data.ev$timestrip<-as.POSIXct(data.ev$timestrip) 
+# save(data.ev, file = "../processed/data.ev-final.RData")
 ```
 
 
 ```{r}
 load("../processed/data.ev-final.RData", verbose = F)
-data.ev.test <- ddply(data.ev, .(order, block_size, id, ev, age_group), summarise, 
-                      ev.prop = length(ev), .drop = T)
+load("../processed/data.ev.test-final.RData")
+# data.ev.test <- ddply(data.ev, .(order, block_size, id, ev, age_group), summarise,
+                      # ev.prop = length(ev), .drop = T)
+# save(data.ev.test, file = "../processed/data.ev.test-final.RData")
 data.ev.test$age_group <- as.factor(data.ev.test$age_group)
-tgc2 <- summarySE(data.ev.test, measurevar="ev.prop", groupvars=c("age_group", "block_size", "ev"))
+tgc2 <- summarySE(data.ev.test, measurevar="ev.prop", 
+				  groupvars=c("age_group", "block_size", "ev"))
 tgc2$ev.prop <- tgc2$sum / (npp*8) # pps number of blocks
-tgc_within <- summarySE(data.ev.test, measurevar="ev.prop", groupvars=c("id", "age_group", "block_size", "ev"))
+tgc_within <- summarySE(data.ev.test, measurevar="ev.prop", 
+						groupvars=c("id", "age_group", "block_size", "ev"))
 tgc_within$ev.prop <- tgc_within$sum / 8
 maxevs <- tgc_within[tgc_within$ev == .6,]
-tgc <- summarySE(tgc_within, measurevar="ev.prop", groupvars=c("block_size", "age_group", "ev"))
+tgc <- summarySE(tgc_within, measurevar="ev.prop", 
+				 groupvars=c("block_size", "age_group", "ev"))
 ```
 
 ```{r}
 levels(tgc$ev) <- gsub("0.0", ".0", levels(tgc$ev))
-levels(tgc$ev) <- gsub("0.", ".", levels(tgc$ev))
+levels(tgc$ev) <- gsub("0.",  ".",  levels(tgc$ev))
 levels(tgc$ev)[levels(tgc$ev)=="..5"] <- ".075"
 
 levels(tgc_within$ev) <- gsub("0.0", ".0", levels(tgc_within$ev))
-levels(tgc_within$ev) <- gsub("0.", ".", levels(tgc_within$ev))
+levels(tgc_within$ev) <- gsub("0.",  ".",  levels(tgc_within$ev))
 levels(tgc_within$ev)[levels(tgc_within$ev)=="..5"] <- ".075"
 
 levels(tgc$age_group) 		 <- gsub("young", "1", levels(tgc$age_group))
-levels(tgc$age_group) 		 <- gsub("old", "2", levels(tgc$age_group))
+levels(tgc$age_group) 		 <- gsub("old",   "2", levels(tgc$age_group))
 levels(tgc_within$age_group) <- gsub("young", "1", levels(tgc_within$age_group))
-levels(tgc_within$age_group) <- gsub("old", "2", levels(tgc_within$age_group))
+levels(tgc_within$age_group) <- gsub("old",   "2", levels(tgc_within$age_group))
 
 tgc$age_group <- factor(tgc$age_group, levels = rev(levels(tgc$age_group)))
-tgc_within$age_group <- factor(tgc_within$age_group, levels = rev(levels(tgc_within$age_group)))
+tgc_within$age_group <- factor(tgc_within$age_group, 
+							   levels = rev(levels(tgc_within$age_group)))
     
-name = paste("../figs/knit/ev-finaldata-boxplots", gsub("/", "", dataloc), ".pdf", sep = "")
+name = paste("../figs/knit/ev-finaldata-boxplots", 
+			 gsub("/", "", dataloc), ".pdf", sep = "")
 # pdf(name, width=inch_width, height=inch_height, pointsize = pointsize)
 ggplot(tgc, aes(x = ev, y = ev.prop, fill = age_group)) + 
   geom_boxplot(data = tgc_within, notch = FALSE) + 

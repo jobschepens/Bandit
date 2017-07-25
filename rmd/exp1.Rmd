@@ -6,8 +6,8 @@ graphics: yes
 output:
   pdf_document:
     toc: yes
-    toc_depth: 6
-    highlight: haddock
+    toc_depth: 5
+    highlight: tango
     fig_caption: yes
     fig_height: 4.2
     fig_width: 6.8
@@ -25,24 +25,49 @@ output:
 csl: ../docfiles/nature.csl
 bibliography: ../docfiles/arc.bib
 documentclass: article
-geometry: margin=1.5in
+fontsize: 11pt
+geometry: margin=1in
 lang: eng
 ---
 
+\newpage
+
+
 ```{r, message=FALSE, results='hide', include=FALSE, echo=F, cache=F, fig.height=5, fig.width=5, dev=c('pdf', 'tiff'), dev.args=list(pdf = list(colormodel = 'cmyk'), tiff = list(compression = 'lzw'))}
-rm(list=ls())
+# pygments (the default), kate, monochrome, espresso, zenburn, haddock, and tango.
+knitr::opts_chunk$set(results='markup', cache=T, autodep=T, warning=F, message=F, prompt=F, eval=T, dpi=300, echo=T)
 
 # rmarkdown::render("feedback-dynamic.Rmd", "pdf_document", clean = FALSE)
-var = 'C:/Users/schepens/Google Drive' # fu
-var = 'C:/Users/Job Schepens/Google Drive' # fu
-const = '/ownCloud/Experiments/feedback and dynamic/github/Bandit'
-base = paste(var, const, sep='')
-wd = paste(base, "/rmd", sep='')
+
+rm(list=ls())
+
+rmd = "/rmd"
 dataloc = "/finaldata"
+var = 'C:/Users/schepens/Google Drive' # fu
+var = 'C:/Users/Job Schepens/Google Drive' # fu laptop
+const = '/ownCloud/Experiments/feedback and dynamic/github/Bandit'
+home = paste(var, const, sep='')
+wd = paste(home, rmd, sep='')
 setwd(wd)
 
+# home <- getwd()
+# setwd(paste(home,rmd, sep = ""))
+
+pointsize = 7
+cm_width = 1 * 8.3   # max width for 1 column figures
+cm_width = 1 * 13
+golden_ratio = (1 + sqrt(5)) / 2
+# golden_ratio = 1
+# square = 1.3
+# square = .6
+square = 1
+cm_height = square * cm_width / golden_ratio
+cm_to_inch = 2.54
+inch_width = cm_width/cm_to_inch
+inch_height = cm_height/cm_to_inch
+
 # options(width=60, width.cutoff=60)
-# install.packages("tidyr")
+# install.packages("combinat")
 library(knitr)
 library(lattice)
 library(effects)
@@ -55,37 +80,21 @@ library(psych)
 library(png)
 library(combinat)
 library(forcats)
-knitr::opts_chunk$set(results='show', cache=T, autodep=T, warning=F, message=F, prompt=F, eval=T, dpi=300, echo=F)
 theme_set(theme_bw())
 ```
-
-```{r}
-# ex = "ex"
-pointsize = 7
-cm_width = 1 * 8.3   # max width for 1 column figures
-cm_width = 1 * 13
-golden_ratio = (1 + sqrt(5)) / 2
-golden_ratio = 1
-square = 1.3
-square = .6
-cm_height = square * cm_width / golden_ratio
-cm_to_inch = 2.54
-inch_width = cm_width/cm_to_inch
-inch_height = cm_height/cm_to_inch
-# inch_height
-```
-
 
 \newpage
 
 
-### Behavorial analysis
-
-```{r}
-dataloc = "/finaldata"
-```
+# Behavorial analysis
 
 ```{r child = 'exp1-finaldata.Rmd'}
+```
+
+\newpage
+
+
+```{r child = 'exp1-finaldata-evplots.Rmd'}
 ```
 
 \newpage
@@ -97,12 +106,6 @@ dataloc = "/finaldata"
 \cleardoublepage
 
 
-```{r child = 'exp1-finaldata-evplots.Rmd'}
-```
-
-\newpage
-
-
 ```{r child = 'exp1-finaldata-regret.Rmd'}
 ```
 
@@ -111,7 +114,7 @@ dataloc = "/finaldata"
 
 
 
-### Optimality models
+# Optimality models
 
 ```{r}
 file4 = "../processed/out4.csv"
@@ -136,7 +139,7 @@ simul = F
 \newpage
 
 
-### Individual plots
+# Individual plots
 
 ```{r child = 'exp1-finaldata-exploratory.Rmd'}
 ```

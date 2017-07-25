@@ -1,9 +1,6 @@
-#### Model fits per trial 
+## Model fits per trial 
 
-\newpage
-
-
-##### 4 options
+### 4 options
 
 ```{r}
 load("../processed/data.ev-final.RData", verbose = F)
@@ -14,7 +11,8 @@ dataall$id              <- as.numeric(as.character(dataall$id))
 dataall$bandit_real_id  <- as.numeric(as.character(dataall$bandit_real_id))
 dataall$payoff          <- as.numeric(as.character(dataall$payoff))
 dataall$ev              <- as.numeric(as.character(dataall$ev))
-dataall <- dataall[, c("id", "bandit_real_id", "payoff", "trial_number", "block_id", "ev", "block_size", "age_group")]
+dataall <- dataall[, c("id", "bandit_real_id", "payoff", "trial_number", 
+					   "block_id", "ev", "block_size", "age_group")]
 N_BANDITS = 4
 ```
 
@@ -29,6 +27,9 @@ filename = paste("results", N_BANDITS, "N", group, ex, ".RData", sep= "")
 ```{r child = 'optim.Rmd'}
 ```
 
+\newpage
+
+
 ```{r}
 group = "old"
 data = dataall[dataall$block_size == N_BANDITS,]
@@ -39,13 +40,16 @@ filename = paste("results", N_BANDITS, "N", group, ex, ".RData", sep= "")
 ```{r child = 'optim.Rmd'}
 ```
 
+\newpage
+
+
 ```{r child = 'plotOptim.Rmd'}
 ```
 
 \newpage 
 
 
-##### 8 options
+### 8 options
 
 
 ```{r}
