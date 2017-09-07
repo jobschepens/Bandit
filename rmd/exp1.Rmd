@@ -35,6 +35,7 @@ lang: eng
 
 ```{r, message=FALSE, results='hide', include=FALSE, echo=F, cache=F, fig.height=5, fig.width=5, dev=c('pdf', 'tiff'), dev.args=list(pdf = list(colormodel = 'cmyk'), tiff = list(compression = 'lzw'))}
 # pygments (the default), kate, monochrome, espresso, zenburn, haddock, and tango.
+
 knitr::opts_chunk$set(results='markup', cache=T, autodep=T, warning=F, message=F, prompt=F, eval=T, dpi=300, echo=T)
 
 # rmarkdown::render("feedback-dynamic.Rmd", "pdf_document", clean = FALSE)
@@ -116,24 +117,13 @@ theme_set(theme_bw())
 
 # Optimality models
 
-```{r}
-file4 = "../processed/out4.csv"
-file8 = "../processed/out8.csv"
-
-AGE_GROUP = 99
-
-simul = F
+```{r child = 'exp1-finaldata-fit.Rmd'}
 ```
 
 \newpage
 
 
 ```{r child = 'exp1-viscomp.Rmd'}
-```
-
-\newpage
-
-```{r child = 'exp1-finaldata-fit.Rmd'}
 ```
 
 \newpage

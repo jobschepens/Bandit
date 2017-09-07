@@ -1,9 +1,7 @@
 ## Model fits per trial 
 
-### 4 options
-
 ```{r}
-load("../processed/data.ev-final.RData", verbose = F)
+load("../processed/data.ev-final.RData", verbose = T)
 
 ex = "in"
 dataall 				<- data.ev
@@ -13,34 +11,53 @@ dataall$payoff          <- as.numeric(as.character(dataall$payoff))
 dataall$ev              <- as.numeric(as.character(dataall$ev))
 dataall <- dataall[, c("id", "bandit_real_id", "payoff", "trial_number", 
 					   "block_id", "ev", "block_size", "age_group")]
+
+BB.LB = c(0.005) # theta
+BB.UB = c(30)    # theta
+MAXITERBB = 1
+WHLEBB = 10 # should be 10 or so
+MAX_CHOICESB = 100 # should be 100
+MIN_GRAIN = 1000
+INITQ = 0
+```
+
+```{r, eval=T}
+source("optimfunctions.R", verbose = T)
+source("plotfunctions.R", verbose = T)
+```
+
+
+### 4 options
+
+```{r}
 N_BANDITS = 4
 ```
 
 
-```{r}
+```{r, eval=F}
 group = "young"
 data <- dataall[dataall$block_size == N_BANDITS,]
 data <- data[data$age_group == group,]
-filename = paste("results", N_BANDITS, "N", group, ex, ".RData", sep= "")
+
+fits <- getParams(data)
+preds <- getPredictions(data, fits)
+
+filename = paste("../processed/BBresults", N_BANDITS, "N", group, ex, ".RData", sep= "")
+save('fits', 'preds', file=filename)
 ```
 
-```{r child = 'optim.Rmd'}
-```
 
-\newpage
-
-
-```{r}
+```{r, eval=F}
 group = "old"
-data = dataall[dataall$block_size == N_BANDITS,]
+data <- dataall[dataall$block_size == N_BANDITS,]
 data <- data[data$age_group == group,]
-filename = paste("results", N_BANDITS, "N", group, ex, ".RData", sep= "")
-```
 
-```{r child = 'optim.Rmd'}
-```
+fits <- getParams(data)
+preds <- getPredictions(data, fits)
 
-\newpage
+filename = paste("../processed/BBresults", N_BANDITS, "N", group, ex, ".RData", sep= "")
+save('fits', 'preds', file=filename)
+```
 
 
 ```{r child = 'plotOptim.Rmd'}
@@ -51,27 +68,36 @@ filename = paste("results", N_BANDITS, "N", group, ex, ".RData", sep= "")
 
 ### 8 options
 
-
 ```{r}
 N_BANDITS = 8
+```
+
+
+```{r, eval=F}
 group = "young"
-data = dataall[dataall$block_size == N_BANDITS,]
+data <- dataall[dataall$block_size == N_BANDITS,]
 data <- data[data$age_group == group,]
-filename = paste("results", N_BANDITS, "N", group, ex, ".RData", sep= "")
+
+fits <- getParams(data)
+preds <- getPredictions(data, fits)
+
+filename = paste("../processed/BBresults", N_BANDITS, "N", group, ex, ".RData", sep= "")
+save('fits', 'preds', file=filename)
 ```
 
-```{r child = 'optim.Rmd'}
-```
 
-```{r}
+```{r, eval=F}
 group = "old"
-data = dataall[dataall$block_size == N_BANDITS,]
+data <- dataall[dataall$block_size == N_BANDITS,]
 data <- data[data$age_group == group,]
-filename = paste("results", N_BANDITS, "N", group, ex, ".RData", sep= "")
+
+fits <- getParams(data)
+preds <- getPredictions(data, fits)
+
+filename = paste("../processed/BBresults", N_BANDITS, "N", group, ex, ".RData", sep= "")
+save('fits', 'preds', file=filename)
 ```
 
-```{r child = 'optim.Rmd'}
-```
 
 ```{r child = 'plotOptim.Rmd'}
 ```

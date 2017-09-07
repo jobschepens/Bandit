@@ -288,7 +288,6 @@ for(pp in unique(data$id)) {
 	id = id + 1
 } 
 data8 = data
-
 data = rbind(data4, data8)
 alldata = data
 ```
@@ -297,7 +296,6 @@ alldata = data
 
 ```{r, echo=T}
 agg = "id" # grouping var
-# blocks
 data <- alldata[alldata$block_size == 4,]
 blocks <- data[data$trial_number == max(data$trial_number),]
 # calc avg score per pp across blocks
@@ -307,7 +305,6 @@ cdata.m <- aggregate(blocks["regret"], by=blocks[c(agg)], FUN=mean)
 names(cdata.m)[names(cdata.m)=="regret"] <- "m"
 cdata.sd <- aggregate(blocks["regret"], by=blocks[c(agg)], FUN=sd)
 names(cdata.sd)[names(cdata.sd)=="regret"] <- "sd"
-
 cdata <- merge(cdata.n, cdata.m)
 cdata <- merge(cdata, cdata.sd)
 cdata$se <- cdata$sd / sqrt(cdata$n)
@@ -317,6 +314,7 @@ cdata4 = cdata
 ```
 
 \newpage
+
 
 ```{r, results='asis'}
 cdata$age_group = "old"
@@ -328,6 +326,8 @@ stargazer(cdata, summary = FALSE, header=FALSE, rownames = FALSE,
           label = "mspblocks",
           font.size = "tiny")
 ```
+
+\newpage
 
 
 ```{r}
@@ -347,8 +347,6 @@ stargazer(cdata.test, summary = FALSE, header=FALSE, rownames = FALSE,
           label = "mspgroups",
           font.size = "tiny")
 ```
-
-\newpage
 
 
 ```{r, echo=T}
@@ -370,6 +368,8 @@ cdata$sd.sc <- scale(cdata$sd, center = TRUE, scale = TRUE)
 cdata8 = cdata
 ```
 
+\newpage
+
 
 ```{r, results='asis'}
 cdata$age_group = "old"
@@ -381,6 +381,8 @@ stargazer(cdata, summary = FALSE, header=FALSE, rownames = FALSE,
           label = "mspblocks",
           font.size = "tiny")
 ```
+
+\newpage
 
 
 ```{r}

@@ -1,128 +1,51 @@
 ## Visual model comparison
 
-
 ```{r}
-my_gg_plot <- function(data, var, xlab, color_choose, limits_choose, 
-					   breaks_choose, labels_choose, normaldens){
-  data$temp <- data[,var]
-  data <- data[is.na(data$temp)==FALSE,]
-  ggplot(data, aes(temp, fill = age, colour = age, y = ..density..)) + 
-      geom_histogram(aes(), alpha = .5, linetype = "blank", 
-      			   position = "identity", binwidth = 10) +
-	  scale_fill_discrete(name = "Age", breaks = c(24, 70), labels = c("YA", "OA")) +
-	  geom_vline(aes(xintercept=likBB_median.median, colour=age),
-	    		   data=cdata, linetype="dashed", size=1, 
-	  		   alpha = 1, show.legend = FALSE) +
-	  geom_line(aes(y = density, x = likBB_median),
-	  		  data = normaldens, size = 1, alpha = 1, show.legend = FALSE) +
-	  scale_y_continuous("", 
-     	breaks = c(), #0, 1/100, 2/100),
-     	labels = expression(), #"0",".01",".02"),
-     	expand = c(0,0)) +
-	  scale_x_continuous(xlab, 
-     	limits = limits_choose,
-     	breaks = breaks_choose,
-     	labels = labels_choose,
-     	expand = c(0,0)) +
-	  theme_bw() + 
-	  theme(
-	    legend.position="none",
-      panel.grid.minor = element_blank(), 
-	    panel.grid.major = element_blank(), 
-	    panel.background = element_blank(),
-      panel.border = element_blank(), 
-	    axis.line = element_line())
-}
-```
-
-\newpage
-
-
-```{r}
-my_gg_plot_no_legend <- function(data, var, xlab, color_choose, limits_choose,
-								 breaks_choose, labels_choose, normaldens){
-  data$temp <- data[,var]
-  data <- data[is.na(data$temp)==FALSE,]
-  
-  ggplot(data, aes(temp, fill = age, y = ..density..)) + 
-  	  geom_histogram(aes(), alpha = .5, linetype = "blank", 
-  	  			   position = "identity", binwidth = 10) +
-      geom_line(aes(colour = age, y = density, x = likBB_median),
-	  		  data = normaldens, size = 1, alpha = 1, show.legend = FALSE) +
-  	  geom_vline(aes(colour = age, xintercept=likBB_median.median),
-	    		   data=cdata, linetype="dashed", size=1, 
-  	  		   alpha = 1, show.legend = FALSE) +
-	  # scale_fill_discrete(name = "Age") +
-	 scale_y_continuous("",
-     	breaks = c(), #0, 1/100, 2/100),
-     	labels = expression(), #"0",".01",".02"),
-     	expand = c(0,0)) +
-	  scale_x_continuous(xlab,
-     	limits = limits_choose,
-     	breaks = breaks_choose,
-     	labels = labels_choose,
-     	expand = c(0,0)) +
-	  theme_bw() + 
-  	  scale_fill_discrete(name = "Age", breaks = c(24, 70), labels = c("YA", "OA")) +
-	  theme(
-	    # legend.position="none",
-	  	legend.position=c(0.27,0.8),
-      panel.grid.minor = element_blank(), 
-	    panel.grid.major = element_blank(), 
-	    panel.background = element_blank(),
-      panel.border = element_blank(), 
-	    axis.line = element_line())
-}
-```
-
-\newpage
-
-
-```{r, cache=FALSE}
-name = paste("../figs/knit/ev-finaldata-histo", 
-			 gsub("/", "", dataloc), ".pdf", sep = "")
-# pdf(name, width=inch_width, height=inch_height, pointsize = pointsize)
-
-data <- read.table(file = "../processed/B-4-options-median.csv", 
+# load fits
+data4 <- read.table(file = "../processed/B-4-options-median.csv", 
 				   quote = "", sep = ",", header = TRUE)
-data$age <- as.factor(data$age)
+data8 <- read.table(file = "../processed/B-8-options-median.csv", 
+				   quote = "", sep = ",", header = TRUE)
+data4$age <- as.factor(data4$age)
+data8$age <- as.factor(data8$age)
+summary(data4)
+```
 
-cdata <- ddply(data, .(age), summarise, 
+
+```{r}
+try(expr = detach("package:dplyr", unload=TRUE), silent = T)
+cdata4 <- ddply(data4, .(age), summarise, 
 	likBB_median.median=median(likBB_median), 
 	likBB_median.sd=sd(likBB_median),
 	likBB_median.N=length(likBB_median))
-cdata <- cdata[cdata$age %in% c("24", "70"),] # remove for panels
-grid <- with(data, seq(min(likBB_median), max(likBB_median), length = 100))
-normaldens <- ddply(data, "age", function(df) {data.frame(likBB_median = grid, 
-			density = dlnorm(grid, median(df$likBB_median), sd(df$likBB_median)))})
-
-p1 <- my_gg_plot_no_legend(data, var = "likBB_median", 
+cdata8 <- ddply(data8, .(age), summarise, 
+	likBB_median.median=median(likBB_median), 
+	likBB_median.sd=sd(likBB_median),
+	likBB_median.N=length(likBB_median))
+cdata4 <- cdata4[cdata4$age %in% c("24", "70"),] # remove for panels
+cdata8 <- cdata8[cdata8$age %in% c("24", "70"),] # remove for panels
+grid4 <- with(data8, seq(min(likBB_median), max(likBB_median), length = 100))
+grid8 <- with(data4, seq(min(likBB_median), max(likBB_median), length = 100))
+p1 <- my_gg_plot_no_legend(data4, cdata4, var = "likBB_median", 
 						   xlab = "Four Option Deviance", color_choose = "age",
 						   # limits_choose = c(0, 200), 
 						   # breaks_choose = c(50, 100, 150), 
-						   # labels_choose = expression(50, 100, 150), normaldens)
+						   # labels_choose = expression(50, 100, 150), normaldens4)
 						   limits_choose = c(40, 160), 
 						   breaks_choose = c(50, 100, 150), 
-						   labels_choose = expression(50, 100, 150), normaldens)
-
-data <- read.table(file = "../processed/B-8-options-median.csv", 
-				   quote = "", sep = ",", header = TRUE)
-data$age <- as.factor(data$age)
-
-cdata <- ddply(data, .(age), summarise, 
-	likBB_median.median=median(likBB_median), 
-	likBB_median.sd=sd(likBB_median),
-	likBB_median.N=length(likBB_median))
-cdata <- cdata[cdata$age %in% c("24", "70"),] # remove for panels
-grid <- with(data, seq(min(likBB_median), max(likBB_median), length = 100))
-normaldens <- ddply(data, "age", function(df) {data.frame(likBB_median = grid, 
-			density = dlnorm(grid, median(df$likBB_median), sd(df$likBB_median)))})
-
-p3 <- my_gg_plot(data, var = "likBB_median", xlab = "Eight option Deviance", 
+						   labels_choose = expression(50, 100, 150))
+p3 <- my_gg_plot(data8, cdata8, var = "likBB_median", xlab = "Eight option Deviance", 
 				 color_choose = "age", 
 				 limits_choose = c(100, 220), breaks_choose = c(150, 200), 
-				 labels_choose = expression(150, 200), normaldens)
+				 labels_choose = expression(150, 200))
+```
+
+
+```{r}
 library(grid)
+name = paste("../figs/knit/ev-finaldata-histo", 
+			 gsub("/", "", dataloc), ".pdf", sep = "")
+# pdf(name, width=inch_width, height=inch_height, pointsize = pointsize)
 pushViewport(viewport(layout = grid.layout(1, 2)))
 print(p1, vp = viewport(layout.pos.row = 1, layout.pos.col = 1))
 print(p3, vp = viewport(layout.pos.row = 1, layout.pos.col = 2))
