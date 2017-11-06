@@ -1,3 +1,6 @@
+# ---- plotfunctions ----
+
+# predict and hist plots
 colSeColMeans <- function(x, na.rm = TRUE) {
 	if (na.rm) { 
 		n <- colSums(!is.na(x)) 

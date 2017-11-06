@@ -1,5 +1,3 @@
-## Variation across problems
-
 ```{r, cache=FALSE}
 # load("../processed/raw_data.RData", verbose = F)
 load("../processed/data.ev-final.RData", verbose = F) 
@@ -29,7 +27,7 @@ blocks$block_size_real_id[blocks$block_size == 4] <- rep(1:8,npp)
 blocks$block_size_real_id[blocks$block_size == 8] <- rep(1:8,npp) 
 ```
 
-```{r, eval=T}
+```{r}
 source("extra.R")
 W_OPT = .6
 regret <- function(choices) { 

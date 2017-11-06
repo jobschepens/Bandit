@@ -1,5 +1,3 @@
-## Visual model comparison
-
 ```{r}
 # load fits
 data4 <- read.table(file = "../processed/B-4-options-median.csv", 

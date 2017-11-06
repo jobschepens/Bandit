@@ -44,15 +44,17 @@ rm(list=ls())
 
 rmd = "/rmd"
 dataloc = "/finaldata"
+
 var = 'C:/Users/schepens/Google Drive' # fu
 var = 'C:/Users/Job Schepens/Google Drive' # fu laptop
+
 const = '/ownCloud/Experiments/feedback and dynamic/github/Bandit'
 home = paste(var, const, sep='')
 wd = paste(home, rmd, sep='')
 setwd(wd)
 
 # home <- getwd()
-# setwd(paste(home,rmd, sep = ""))
+# setwd(paste(home, rmd, sep = ""))
 
 pointsize = 7
 cm_width = 1 * 8.3   # max width for 1 column figures
@@ -87,7 +89,9 @@ theme_set(theme_bw())
 \newpage
 
 
-# Behavorial analysis
+# Behavorial
+
+## Overall scores
 
 ```{r child = 'exp1-finaldata.Rmd'}
 ```
@@ -95,11 +99,15 @@ theme_set(theme_bw())
 \newpage
 
 
+## Proportions
+
 ```{r child = 'exp1-finaldata-evplots.Rmd'}
 ```
 
 \newpage
 
+
+## Variation across problems
 
 ```{r child = 'exp1-finaldata-expplots.Rmd'}
 ```
@@ -107,23 +115,49 @@ theme_set(theme_bw())
 \cleardoublepage
 
 
+## Regret
+
 ```{r child = 'exp1-finaldata-regret.Rmd'}
 ```
 
 \newpage
 
 
+# Computational
+
+```{r, cache = F, echo = F}
+# models
+read_chunk("modelfunctions/bbanditsfunc.R") # thompson
+read_chunk("optimfunctions-help.R") # softmax baseline etc
+read_chunk("optimfunctions.R") # fit predict
+read_chunk('plotfunctions.R') # plot
+``` 
+\newpage
+```{r bbanditsfunc}
+``` 
+\newpage
+```{r optimfunctions-help}
+``` 
+\newpage
+```{r optimfunctions}
+``` 
+\newpage
+```{r plotfunctions}
+``` 
+\newpage
 
 
-# Optimality models
+## Visual model comparison
 
-```{r child = 'exp1-finaldata-fit.Rmd'}
+```{r child = 'exp1-viscomp.Rmd'}
 ```
 
 \newpage
 
 
-```{r child = 'exp1-viscomp.Rmd'}
+## One step ahead predictions
+
+```{r child = 'exp1-finaldata-fit.Rmd'}
 ```
 
 \newpage
